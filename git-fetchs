@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+getopts('v', \my %opt) or die;
+
+my @remotes = do {
+  my %r;
+  for my $b (qx{git branch -a}) {
+    next unless $b =~ m{remotes/([^/]+)/};
+    $r{$1} = 1;
+  }
+  keys %r;
+};
+
+for my $r (@remotes) {
+  print "$r\n" if $opt{v};
+  system('git', 'fetch', $r);
+}
+
