@@ -1,4 +1,14 @@
 #!/usr/bin/perl
+#
+# This fetches all refs from all the remotes, that you have fetched
+# from before.  It is different from "git fetch --all" because that
+# will also fetch from remotes that you have *not* fetched from before.
+#
+# I use this because our repo setup script creates one remote for each
+# of our employees, including those that are not expected to commit to
+# the repo, and some who do not work here any more but for whom we may
+# still retain old repos.  I do not want to try pointlessly to fetch
+# from these remotes every time I update.
 
 use Getopt::Std;
 getopts('v', \my %opt) or die;

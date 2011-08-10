@@ -1,4 +1,21 @@
 #!/bin/sh
+#
+# This prepares a brief summary of how your current branch has diverged 
+# from a corresponding remote branch.  A typical use is:
+#   git vee origin
+#
+# if the currently-checked-out branch is master, this will compare
+# master and origin/master.  
+#
+# It uses git log --cherry-mark, so you need at least git 1.4.7.1.
+# If --cherry-mark doesn't work, delete that option from this script.
+#
+# Usage:
+#   git vee remote  # compare current head branch and its analog on the remote
+#   git vee remote branch # compare branch and remote/branch
+#   git vee branch  # compare HEAD and branch
+#   git vee branch1 branch2 # compare branch1 and branch2
+#
 
 DIE=false;
 

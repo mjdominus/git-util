@@ -1,6 +1,12 @@
 #!/usr/bin/perl
 #
 # Still fails when files may contain spaces
+#
+# Run the editor on all the files that have been modified from the
+# current index.  Useful to resume work when you left the working tree
+# dirty.  Useful following a "git reset HEAD^" to continue work on the
+# stuff you were working on before.  Useful following a failed merge.
+#
 
 chomp(my @changed = qx{git status --porcelain});
 exit 1 unless $? == 0;

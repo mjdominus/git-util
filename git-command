@@ -1,1 +1,3 @@
+# symlink or hardlink "foo" to "git-command" to make "foo" an alias
+# for "git-foo"
 exec git "$(basename "$0")" "$@"
