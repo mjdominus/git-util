@@ -12,6 +12,8 @@ die "Fucking shell, how does it work?\n"
 chomp(my @lines = qx{find @changed -type f });
 exit 1 unless $? == 0;
 
+# maybe should use output of "git var GIT_EDITOR" here?
+# But then I have to involve the !@&*!@*(&!@ shell
 my $ed = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
 exec $ed, @lines;
 die "exec $ed: $!\n";
