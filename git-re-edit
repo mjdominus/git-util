@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+#
+# Still fails when files may contain spaces
+
+chomp(my @changed = qx{git status --porcelain});
+exit 1 unless $? == 0;
+s/^.. // or die "<$_>???\n" for @changed;
+die "Fucking shell, how does it work?\n"
+    if grep / /, @changed;
+
+@changed = qw(.) unless @changed;
+chomp(my @lines = qx{find @changed -type f });
+exit 1 unless $? == 0;
+
+my $ed = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
+exec $ed, @lines;
+die "exec $ed: $!\n";

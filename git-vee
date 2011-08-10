@@ -1,0 +1,57 @@
+#!/bin/sh
+
+DIE=false;
+
+equal_commits () {
+  [ $(git rev-parse $A) = $(git rev-parse $B) ]
+}  
+
+valid_ref () {
+  git rev-parse -q --verify $1 >/dev/null
+}
+
+is_remote () {
+  git remote | grep -q "^$1"'$'
+}
+
+die_later () {
+  echo $* 1>&2;
+  DIE=true
+}
+
+die_now () {
+  $DIE && exit 1
+}
+
+usage () {
+  echo "Usage: $0 remote [branch]" 1>&2
+  echo "       $0 branch-a [branch-b]" 1>&2
+  exit 2
+}
+
+case $# in
+  1) X=$1 Y=HEAD;;
+  2) X=$1 Y=$2;;
+  *) usage ;;
+esac
+
+if is_remote $X; then
+  if [ $Y = HEAD ]; then
+      Y=$(git name-rev --name-only HEAD | sed -e 's/~[0-9]+$//')
+  fi
+  A=$Y B="$X/$Y"
+else 
+  A=$X; B=$Y;
+fi
+
+valid_ref $A || die_later "$A: unknown commit"
+valid_ref $B || die_later "$B: unknown commit"
+die_now
+
+if equal_commits $A $B ; then
+  echo "$A and $B are identical"
+  exit 0;
+fi
+
+git log --decorate --cherry-mark --oneline --graph --boundary $A"..."$B
+
