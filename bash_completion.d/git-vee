@@ -1,0 +1,9 @@
+_git_vee () {
+    local cword
+    _get_comp_words_by_ref -n =: cword
+#    echo "# cur=$cur words=$words cword=$cword"
+    case $cword in
+    2)  __gitcomp "$(__git_remotes)" ;;
+    3)  __gitcomp "$(__git_heads)" ;;
+    esac
+}
