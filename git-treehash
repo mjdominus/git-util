@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+my %opt;
+use Getopt::Std;
+getopts("q", \%opt);
+
+@ARGV = qw(HEAD ORIG_HEAD) unless @ARGV;
+
+for my $rev (@ARGV) {
+  chomp(my $res = qx{git rev-parse $rev^{tree}});
+  if ($?) { $BAD++ }
+  else { push @{$hash{$res}}, $rev }
+}
+
+exit 2 if $BAD;
+if (keys(%hash) == 1) {
+  my ($res) = keys %hash;
+  print "$res\n" unless $opt{"q"};
+  exit 0;
+} else {
+  unless ($opt{"q"}) {
+    for my $res (keys %hash) {
+      print $res, " ", join(" ", @{$hash{$res}}), "\n";
+    }
+  }
+  exit 1;
+}
