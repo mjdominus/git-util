@@ -1,0 +1,3 @@
+_git_treehash () {
+    __gitcomp "$(__git_refs)"
+}
