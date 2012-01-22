@@ -54,7 +54,7 @@ esac
 
 if is_remote $X; then
   if [ $Y = HEAD ]; then
-      Y=$(git name-rev --name-only HEAD | sed -e 's/~[0-9]+$//')
+      Y=$(git get current-branch-name)
   fi
   A=$Y B="$X/$Y"
 else 
