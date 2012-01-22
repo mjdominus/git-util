@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+my ($what, @args) = @ARGV;
+
+die "Usage: git-get what [args...]\n"  unless defined $what;
+
+$what =~ tr/-/_/;
+
+if (defined &$what) { $what->(@args) }
+else {
+  die "Don't know how to get '$what'; aborting";
+}
+
+sub current_branch_name {
+   exec("git rev-parse --symbolic-full-name --abbrev-ref HEAD");
+   die "Couldn't run git-rev-parse: $!";
+}
+
+sub working_tree_dirty {
+  my ($arg) = @_;
+  die "Unimplemented\n";
+#  git rev-parse --verify HEAD > /dev/null &&
+#        git update-index --ignore-submodules --refresh &&
+#        git diff-files --quiet --ignore-submodules &&
+#        git diff-index --cached --quiet HEAD --ignore-submodules -- ||
+#        die "Working tree is dirty"
+}
+
