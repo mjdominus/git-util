@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+sub run;
+
+my $repo = shift || die "git hubclone reponame\n";
+-e $repo and die "'$repo' already exists!\n";
+
+run "git clone mjd\@src.pobox.com:git/$repo.git";
+chdir($repo) || die "chdir $repo: $!";
+run "git remote add gitbox git\@src.pobox.com:$repo.git";
+run "git fetch gitbox";
+run "git remote add rjbs mjd\@src.pobox.com:~rjbs/git/$repo.git";
+run "git fetch rjbs";
+
+sub run {
+  my ($cmd) = @_;
+  system($cmd) == 0 or exit $? >> 8;
+}
+
