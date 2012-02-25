@@ -11,6 +11,7 @@
 # If --cherry-mark doesn't work, delete that option from this script.
 #
 # Usage:
+#   git vee # compare current head branch and its remote tracking branch
 #   git vee remote  # compare current head branch and its analog on the remote
 #   git vee remote branch # compare branch and remote/branch
 #   git vee branch  # compare HEAD and branch
@@ -41,12 +42,15 @@ die_now () {
 }
 
 usage () {
-  echo "Usage: $0 remote [branch]" 1>&2
+  echo "Usage: $0 [remote] [branch]" 1>&2
   echo "       $0 branch-a [branch-b]" 1>&2
   exit 2
 }
 
 case $# in
+  0) Y=$(git get current-branch-name);
+     X=$(git get branch-remote $Y);
+     ;;
   1) X=$1 Y=HEAD;;
   2) X=$1 Y=$2;;
   *) usage ;;
