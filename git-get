@@ -15,6 +15,12 @@ sub current_branch_name {
   _run("git rev-parse --symbolic-full-name --abbrev-ref HEAD");
 }
 
+sub branch_remote {
+  my ($branch) = @_;
+  $branch ||= current_branch_name();
+  _run("git config --get 'branch.$branch.remote'");
+}
+
 sub working_tree_dirty {
   my ($arg) = @_;
   die "Unimplemented\n";
