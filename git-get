@@ -6,14 +6,13 @@ _usage() unless defined $what;
 
 $what =~ tr/-/_/;
 
-if (defined &$what) { $what->(@args) }
+if (defined &$what) { print $what->(@args), "\n" }
 else {
     _usage($what);
 }
 
 sub current_branch_name {
-   exec("git rev-parse --symbolic-full-name --abbrev-ref HEAD");
-   die "Couldn't run git-rev-parse: $!";
+  _run("git rev-parse --symbolic-full-name --abbrev-ref HEAD");
 }
 
 sub working_tree_dirty {
@@ -24,6 +23,14 @@ sub working_tree_dirty {
 #        git diff-files --quiet --ignore-submodules &&
 #        git diff-index --cached --quiet HEAD --ignore-submodules -- ||
 #        die "Working tree is dirty"
+}
+
+sub _run {
+  my @cmd = @_;
+  open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";
+  my $res = join "", <$p>;
+  chomp($res);
+  return $res;
 }
 
 sub _usage {
