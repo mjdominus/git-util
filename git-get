@@ -2,13 +2,13 @@
 
 my ($what, @args) = @ARGV;
 
-die "Usage: git-get what [args...]\n"  unless defined $what;
+_usage() unless defined $what;
 
 $what =~ tr/-/_/;
 
 if (defined &$what) { $what->(@args) }
 else {
-  die "Don't know how to get '$what'; aborting";
+    _usage($what);
 }
 
 sub current_branch_name {
@@ -26,3 +26,11 @@ sub working_tree_dirty {
 #        die "Working tree is dirty"
 }
 
+sub _usage {
+  my ($what) = @_;
+  warn "Don't know how to get '$what'; try:\n" if defined $what;
+  my @names = sort grep !/^_/ && defined &{$_}, keys %main::;
+  tr/_/-/ for @names;
+  print STDERR join "\n", @names, "";
+  exit;
+}
