@@ -23,12 +23,13 @@ sub branch_remote {
 
 sub working_tree_dirty {
   my ($arg) = @_;
-  die "Unimplemented\n";
-#  git rev-parse --verify HEAD > /dev/null &&
-#        git update-index --ignore-submodules --refresh &&
-#        git diff-files --quiet --ignore-submodules &&
-#        git diff-index --cached --quiet HEAD --ignore-submodules -- ||
-#        die "Working tree is dirty"
+  for my $cmd ("git rev-parse --verify HEAD > /dev/null",
+	       "git update-index --ignore-submodules --refresh > /dev/null",
+	       "git diff-files --quiet --ignore-submodules",
+	       "git diff-index --cached --quiet HEAD --ignore-submodules") {
+      system($cmd) == 0 or return 1;
+  }
+  return 0;
 }
 
 sub _run {
