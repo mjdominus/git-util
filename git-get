@@ -42,6 +42,16 @@ sub working_tree_dirty {
   return 0;
 }
 
+sub heads {
+  my @heads;
+  for (qx{git branch}) {
+    s/^..//; # Trim off leading '*' and/or spaces
+    push @heads, $_;
+  }
+  chomp $heads[-1]; # wrapper will append an extra newline on output
+  @heads;
+}
+
 sub _run {
   my @cmd = @_;
   open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";
