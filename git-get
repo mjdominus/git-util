@@ -24,6 +24,13 @@ sub branch_remote {
   _run("git config --get 'branch.$branch.remote'");
 }
 
+sub branch_remote_branch {
+  my ($branch) = @_;
+  $branch ||= current_branch_name();
+  my $remote = branch_remote($branch);
+  if ($remote) { return "$remote/$branch" } else { exit 1 }
+}
+
 sub working_tree_dirty {
   my ($arg) = @_;
   for my $cmd ("git rev-parse --verify HEAD > /dev/null",
