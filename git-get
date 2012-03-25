@@ -34,7 +34,15 @@ sub branch_remote_branch {
   return "$remote/$remote_ref";
 }
 
-sub working_tree_dirty {
+sub is_working_tree_clean {
+  exit (_working_tree_dirty() ? 1 : 0);
+}
+
+sub is_working_tree_dirty {
+  exit (_working_tree_dirty() ? 0 : 1);
+}
+
+sub _working_tree_dirty {
   my ($arg) = @_;
   for my $cmd ("git rev-parse --verify HEAD > /dev/null",
 	       "git update-index --ignore-submodules --refresh > /dev/null",
