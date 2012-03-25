@@ -27,8 +27,11 @@ sub branch_remote {
 sub branch_remote_branch {
   my ($branch) = @_;
   $branch ||= current_branch_name();
-  my $remote = branch_remote($branch);
-  if ($remote) { return "$remote/$branch" } else { exit 1 }
+  my $remote = branch_remote($branch) or exit 1;
+  my $remote_ref = _run("git config --get 'branch.$branch.merge'");
+  $remote_ref =~ s{^refs/heads/}{};
+  $remote_ref or exit 1;
+  return "$remote/$remote_ref";
 }
 
 sub working_tree_dirty {
