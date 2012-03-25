@@ -8,7 +8,7 @@ _usage() unless defined $what;
 $what =~ tr/-/_/;
 
 { no strict 'refs';
-  if (defined &$what) { print $what->(@args), "\n" }
+  if (defined &$what) { print $what->(@args), $ENV{GIT_GET_NO_NEWLINE} ? "" : "\n" }
   else {
     _usage($what);
   }
