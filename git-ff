@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+#
+# Usage:
+#  git-ff   (fast-forward HEAD to corresponding remote tracking branch)
+#  git-ff refname   (fast-forward ref to corresponding remote tracking branch)
+#  git-ff refname [target] (fast-forward ref to target)
+#  git-ff -r remote (fast-forward all heads that track this remote)
+
+use strict;
+use Getopt::Std;
+sub error;
+
+my %opt = (v => 0, r => undef);
+getopts('vr:', \%opt) or usage();
+$ENV{GIT_GET_NO_NEWLINE} = 1;
+
+my $remote_name = $opt{r};
+if ($remote_name) {
+  system("git get is-remote '$remote_name'") == 0
+    or error "Unknown remote '$remote_name'";
+  for my $head (qx{git get heads}) {
+    chomp $head;
+    my $tracking = qx{git-get branch-remote '$head'};
+    next unless $tracking eq $remote_name;
+    my $remote_branch = qx{git-get branch-remote-branch '$head'};
+    warn "$head -> $remote_branch" if $opt{v};
+    ff_ref($head, $remote_branch);
+  }
+} else {
+  my ($refname, $target) = @ARGV;
+  $refname ||= qx{git get current-branch-name}
+    or error "Can't fast-forward detached HEAD";
+  $refname or usage();
+  $refname = qx{git rev-parse --symbolic-full-name '$refname'} or exit 1;
+  chomp($refname);
+  $target ||= qx{git get branch-remote '$refname'} 
+    or error "Can't find upstream branch for '$refname'";
+  ff_ref($refname, $target, "die on failure");
+}
+
+sub ff_ref {
+  my ($ref, $target, $die_on_failure) = @_;
+  unless (system("git", "get", "is-ancestor-of", $ref, $target) == 0) {
+    die "Can't fast-forward $ref to $target\n" if $die_on_failure;
+    return;
+  }
+  exit 2 unless system("git", "update-ref", "-m", "merge $target: Fast-forward", $ref, $target) == 0;
+}
+
+sub error {
+  warn @_, "\n";
+  exit 1;
+}
