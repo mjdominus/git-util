@@ -63,9 +63,14 @@ sub is_remote {
 
 sub is_ancestor_of {
   my ($A, $B) = @_;
+  is_same_object($A, _run("git", "merge-base", $A, $B));
+}
+
+sub is_same_object {
+  my ($A, $B) = @_;
   $A = _run("git", "rev-parse", $A);
-  my $merge_base = _run("git", "merge-base", $A, $B);
-  exit($A eq $merge_base ? 0 : 1);
+  $B = _run("git", "rev-parse", $B);
+  exit($A eq $B ? 0 : 1);
 }
 
 sub _run {
