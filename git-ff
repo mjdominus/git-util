@@ -13,6 +13,7 @@ sub error;
 my %opt = (v => 0, r => undef);
 getopts('vr:', \%opt) or usage();
 $ENV{GIT_GET_NO_NEWLINE} = 1;
+my $HEAD = qx{git get current-branch-name};
 
 my $remote_name = $opt{r};
 if ($remote_name) {
@@ -37,6 +38,13 @@ if ($remote_name) {
 
 sub ff_ref {
   my ($ref, $target, $die_on_failure) = @_;
+  if ($HEAD && $HEAD eq $ref) {
+    if (system("git get is-working-tree-dirty") == 0) {
+      error("Won't update current branch '$ref' with dirty working tree");
+      exit 1 if $die_on_failure;
+      return;
+    }
+  }
   unless (system("git", "get", "is-ancestor-of", $ref, $target) == 0) {
     die "Can't fast-forward $ref to $target\n" if $die_on_failure;
     return;
