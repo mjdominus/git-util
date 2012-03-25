@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use strict;
 
 my ($what, @args) = @ARGV;
 
@@ -6,9 +7,11 @@ _usage() unless defined $what;
 
 $what =~ tr/-/_/;
 
-if (defined &$what) { print $what->(@args), "\n" }
-else {
+{ no strict 'refs';
+  if (defined &$what) { print $what->(@args), "\n" }
+  else {
     _usage($what);
+  }
 }
 
 sub current_branch_name {
