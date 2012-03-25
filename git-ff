@@ -23,7 +23,6 @@ if ($remote_name) {
     my $tracking = qx{git-get branch-remote '$head'};
     next unless $tracking eq $remote_name;
     my $remote_branch = qx{git-get branch-remote-branch '$head'};
-    warn "$head -> $remote_branch" if $opt{v};
     ff_ref($head, $remote_branch);
   }
 } else {
@@ -31,9 +30,7 @@ if ($remote_name) {
   $refname ||= qx{git get current-branch-name}
     or error "Can't fast-forward detached HEAD";
   $refname or usage();
-  $refname = qx{git rev-parse --symbolic-full-name '$refname'} or exit 1;
-  chomp($refname);
-  $target ||= qx{git get branch-remote '$refname'} 
+  $target ||= qx{git get branch-remote-branch '$refname'}
     or error "Can't find upstream branch for '$refname'";
   ff_ref($refname, $target, "die on failure");
 }
@@ -44,7 +41,11 @@ sub ff_ref {
     die "Can't fast-forward $ref to $target\n" if $die_on_failure;
     return;
   }
+  return if system("git", "get", "is-same-object", $ref, $target) == 0;
+  chomp($ref = qx{git rev-parse --symbolic-full-name '$ref'});
+  $ref || die "Can't find symbolic-full-name of '$ref'\n";
   exit 2 unless system("git", "update-ref", "-m", "merge $target: Fast-forward", $ref, $target) == 0;
+  warn "$ref -> $target\n" if $opt{v};
 }
 
 sub error {
