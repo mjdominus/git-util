@@ -52,6 +52,12 @@ sub heads {
   @heads;
 }
 
+sub is_remote {
+  my ($in) = @_;
+  $in .= "\n";
+  if (grep $_ eq $in, qx{git remote}) { exit 0 } else { exit 1 }
+}
+
 sub _run {
   my @cmd = @_;
   open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";
