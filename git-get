@@ -58,6 +58,13 @@ sub is_remote {
   if (grep $_ eq $in, qx{git remote}) { exit 0 } else { exit 1 }
 }
 
+sub is_ancestor_of {
+  my ($A, $B) = @_;
+  $A = _run("git", "rev-parse", $A);
+  my $merge_base = _run("git", "merge-base", $A, $B);
+  exit($A eq $merge_base ? 0 : 1);
+}
+
 sub _run {
   my @cmd = @_;
   open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";
