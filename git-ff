@@ -38,18 +38,21 @@ if ($remote_name) {
 
 sub ff_ref {
   my ($ref, $target, $die_on_failure) = @_;
-  if ($HEAD && $HEAD eq $ref) {
-    if (system("git get is-working-tree-dirty") == 0) {
-      error("Won't update current branch '$ref' with dirty working tree");
-      exit 1 if $die_on_failure;
-      return;
-    }
+  my $is_head = $HEAD && $HEAD eq $ref;
+  if ($is_head && system("git get is-working-tree-dirty") == 0) {
+    error("Won't update current branch '$ref' with dirty working tree");
+    exit 1 if $die_on_failure;
+    return;
   }
   unless (system("git", "get", "is-ancestor-of", $ref, $target) == 0) {
     die "Can't fast-forward $ref to $target\n" if $die_on_failure;
     return;
   }
   return if system("git", "get", "is-same-object", $ref, $target) == 0;
+  if ($is_head) {
+    system("git", "merge", "--ff-only", $ref, $target) == 0;
+    return;
+  }
   chomp($ref = qx{git rev-parse --symbolic-full-name '$ref'});
   $ref || die "Can't find symbolic-full-name of '$ref'\n";
   exit 2 unless system("git", "update-ref", "-m", "merge $target: Fast-forward", $ref, $target) == 0;
