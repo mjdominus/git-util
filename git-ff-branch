@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 #
 # Usage:
-#  git-ff   (fast-forward HEAD to corresponding remote tracking branch)
-#  git-ff refname   (fast-forward ref to corresponding remote tracking branch)
-#  git-ff refname [target] (fast-forward ref to target)
-#  git-ff -r remote (fast-forward all heads that track this remote)
+#  git-ff-branch   (fast-forward HEAD to corresponding remote tracking branch)
+#  git-ff-branch refname   (fast-forward ref to corresponding remote tracking branch)
+#  git-ff-branch refname [target] (fast-forward ref to target)
+#  git-ff-branch -r remote (fast-forward all heads that track this remote)
 
 use strict;
 use Getopt::Std;
