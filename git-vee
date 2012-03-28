@@ -41,6 +41,11 @@ die_now () {
   $DIE && exit 1
 }
 
+die () {
+  echo 1>&2 "$@"
+  exit 1
+}
+
 usage () {
   echo "Usage: $0 [remote] [branch]" 1>&2
   echo "       $0 branch-a [branch-b]" 1>&2
@@ -49,7 +54,9 @@ usage () {
 
 case $# in
   0) Y=$(git get current-branch-name);
+     [ -z "$Y" ] && die "Couldn't get current branch name"
      X=$(git get branch-remote $Y);
+     [ -z "$X" ] && die "Couldn't find remote tracking branch for '$Y'"
      ;;
   1) X=$1 Y=HEAD;;
   2) X=$1 Y=$2;;
