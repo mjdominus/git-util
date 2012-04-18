@@ -15,6 +15,7 @@ $what =~ tr/-/_/;
 }
 
 sub current_branch_name {
+  if (_head_detached()) { return "" }
   _run("git rev-parse --symbolic-full-name --abbrev-ref HEAD");
 }
 
