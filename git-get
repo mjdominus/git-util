@@ -18,6 +18,14 @@ sub current_branch_name {
   _run("git rev-parse --symbolic-full-name --abbrev-ref HEAD");
 }
 
+sub is_head_detached {
+  exit (_head_detached() ? 0 : 1);
+}
+
+sub _head_detached {
+  system("git symbolic-ref -q HEAD > /dev/null") != 0;
+}
+
 sub branch_remote {
   my ($branch) = @_;
   $branch ||= current_branch_name();
