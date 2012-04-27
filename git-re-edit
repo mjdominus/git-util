@@ -8,7 +8,7 @@
 # stuff you were working on before.  Useful following a failed merge.
 #
 
-chomp(my @changed = qx{git status --porcelain});
+chomp(my @changed = grep !/^\?\? /, qx{git status --porcelain});
 exit 1 unless $? == 0;
 s/^.. // or die "<$_>???\n" for @changed;
 die "Fucking shell, how does it work?\n"
