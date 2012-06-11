@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+my $logs = "";
+my $GITDIR = shift() || "$ENV{HOME}/src/pobox";
+for my $repo (qw(pm moonpig)) {
+  my $dir =  "$GITDIR/$repo";
+  chdir $dir or die "chdir $dir: $!";
+  system("git fetch origin");
+  $logs .= qx{git log --reverse --since 9AM --all --stat --author=mjd} . "\n";
+}
+
+if ($logs =~ /\S/) {
+  print "Today's commits:\n\n$logs\n";
+} else {
+  print "I didn't find any commits today.  I wonder why not?
+Holiday? Wrong repository? Forgot to push? Out sick? 
+Or maybe the program couldn't fetch the new commits. 
+Better find out!
+";
+}
+
