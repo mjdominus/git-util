@@ -1,12 +1,25 @@
 #!/usr/bin/perl
 
+use Time::Local;
+my $when = do {
+  my @date = localtime;
+  @date = localtime(time() - 86400) if $date[2] < 9;
+  @date[2,1,0] = (9, 0, 0);
+  timelocal(@date);
+};
+
 my $logs = "";
 my $GITDIR = shift() || "$ENV{HOME}/src/pobox";
 for my $repo (qw(pm moonpig)) {
   my $dir =  "$GITDIR/$repo";
   chdir $dir or die "chdir $dir: $!";
   system("git fetch origin");
-  $logs .= qx{git log --reverse --since 9AM --all --stat --author=mjd} . "\n";
+  my @commitids = 
+      map { $_->[1] }
+      grep { $_->[0] >= $when }
+      map { [ split ] } qx{git log --reverse --since 9AM --all --format="%at %H" --author=mjd};
+  
+  $logs .= qx{git log -n1 --stat $_} . "\n" for @commitids;
 }
 
 if ($logs =~ /\S/) {
