@@ -1,0 +1,32 @@
+
+git-migrate-refs:
+
+        git migrate-refs --to psync-email psync...
+
+Turn this:
+
+        * 0313f6b (origin/psync-email, psync-email) Insert expiration dates into psync notice
+        * 0972339 Test for correct amount on psync quote
+        * fc39efd Remove internals knowledge from psync invoice kits
+        * c24c6ae extract method replacement_chain_lifetime in Consumer::PredictsExpiration
+        * 0c95176 extract Consumer::ByTime method want_to_live
+        * b8601bb stub tests of psync invoice email
+        * 70bf88f replacement_chain_expiration_date gets options to control calculation
+        = a563a90 tweak psync holdoff code
+        * 3afde3f Comment and spacing cleanups
+        | = fbca845 (HEAD, origin/psync, psync) tweak psync holdoff code
+        | * 43ee845 Comment and spacing cleanups
+        |/  
+        o 1b6b386 Make psync Quote attribute psync_for_xid read-only
+
+Into this:
+
+        * 0313f6b (origin/psync-email, psync-email) Insert expiration dates into psync notice
+        * 0972339 Test for correct amount on psync quote
+        * fc39efd Remove internals knowledge from psync invoice kits
+        * c24c6ae extract method replacement_chain_lifetime in Consumer::PredictsExpiration
+        * 0c95176 extract Consumer::ByTime method want_to_live
+        * b8601bb stub tests of psync invoice email
+        * 70bf88f replacement_chain_expiration_date gets options to control calculation
+        o a563a90 (HEAD, psync) tweak psync holdoff code
+
