@@ -9,17 +9,17 @@ my $when = do {
 };
 
 my $logs = "";
-my $GITDIR = shift() || "$ENV{HOME}/src/pobox";
-for my $repo (qw(pm moonpig)) {
+my $GITDIR = shift() || "$ENV{HOME}/src";
+for my $repo (qw(pm moonpig pobox)) {
   my $dir =  "$GITDIR/$repo";
   chdir $dir or die "chdir $dir: $!";
   system("git fetch origin");
   my @commitids = 
       map { $_->[1] }
       grep { $_->[0] >= $when }
-      map { [ split ] } qx{git log --reverse --since 9AM --all --format="%at %H" --author=mjd};
+      map { [ split ] } qx{git log --reverse --since=9AM --all --format="%at %H" --author=mjd gitbox/master origin/master};
   
-  $logs .= qx{git log -n1 --stat $_} . "\n" for @commitids;
+  $logs .= qx{git log -w -n1 --stat $_} . "\n" for @commitids;
 }
 
 if ($logs =~ /\S/) {
