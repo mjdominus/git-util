@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+
+chomp(my @item = <>);
+open my($ttyin), "<", "/dev/tty"
+  or do { warn "No tty: $!\n"; exit 1 };
+open my($ttyout), ">", "/dev/tty"
+  or do { warn "No tty: $!\n"; exit 1 };
+
+if (@item > 30) {
+  warn sprintf "%d items in menu is too many\n", 0+@item;
+  exit 2;
+}
+
+for my $i (0 .. $#item) {
+  printf $ttyout "%2d. %s\n", $i, $item[$i];
+}
+
+my @set = ();
+while (1) {
+  my $in = prompt($ttyin, $ttyout);
+  last unless $in =~ /\S/;
+  my $quit = $in =~ s/!\s*$//;
+  modify($in, \@set);
+  last if $quit;
+}
+
+print join "\n", @item[@set], "";
+exit 0;
+
+sub prompt {
+  my ($in, $out) = @_;
+  print $out "> ";
+  my $txt = <$in>;
+  return $txt;
+}
+
+sub modify {
+  my ($mod, $set) = @_;
+  my %set;
+  @set{@$set} = (1) x @$set; # URGH
+  #mod =~ tr/,/ /;
+  my @items = split /\s+/, $mod;
+  for my $item (@items) {
+    if ($item =~ /^\d+$/) {
+      $set{$item} = 1;
+    } elsif ($item =~ /^ (\d+) - (\d+) $/x) {
+      for ($1 .. $2) { $set{$_} = 1 }
+    } elsif ($item =~ /^ - (\d+) $/x) {
+      delete $set{$1};
+    }
+  }
+  @$set = sort { $a <=> $b } keys %set;
+}
