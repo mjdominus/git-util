@@ -5,6 +5,12 @@ my $opt = { 1 => 0, n => 30 };
 getopts('1n:', $opt) or usage();
 
 chomp(my @item = <>);
+
+unless (@item) {
+  warn "No items supplied to menupick\n";
+  exit;
+}
+
 open my($ttyin), "<", "/dev/tty"
   or do { warn "No tty: $!\n"; exit 1 };
 open my($ttyout), ">", "/dev/tty"
