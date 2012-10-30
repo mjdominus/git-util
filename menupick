@@ -1,12 +1,21 @@
 #!/usr/bin/perl
 
+use Getopt::Std;
+my $opt = { 1 => 0, n => 30 };
+getopts('1n:', $opt) or usage();
+
 chomp(my @item = <>);
 open my($ttyin), "<", "/dev/tty"
   or do { warn "No tty: $!\n"; exit 1 };
 open my($ttyout), ">", "/dev/tty"
   or do { warn "No tty: $!\n"; exit 1 };
 
-if (@item > 30) {
+if ($opt->{1} && @item == 1) {
+  print @item, "\n";
+  exit;
+}
+
+if ($opt->{n} > 0 && @item > $opt->{n}) {
   warn sprintf "%d items in menu is too many\n", 0+@item;
   exit 2;
 }
