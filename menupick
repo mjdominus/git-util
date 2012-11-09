@@ -26,15 +26,22 @@ if ($opt->{n} > 0 && @item > $opt->{n}) {
   exit 2;
 }
 
-for my $i (0 .. $#item) {
-  printf $ttyout "%2d. %s\n", $i, $item[$i];
+sub show_menu {
+    for my $i (0 .. $#item) {
+        printf $ttyout "%2d. %s\n", $i, $item[$i];
+    }
 }
+show_menu();
 
 my @set = ();
 while (1) {
   my $in = prompt($ttyin, $ttyout);
   last unless $in =~ /\S/;
   my $quit = $in =~ s/!\s*$//;
+  if ($in =~ /^\s*\?\s*$/) {
+      print_set($ttyout, @set);
+      next;
+  }
   modify($in, \@set);
   last if $quit;
 }
@@ -65,4 +72,9 @@ sub modify {
     }
   }
   @$set = sort { $a <=> $b } keys %set;
+}
+
+sub print_set {
+    my ($out) = shift;
+    print $out "@_\n";
 }
