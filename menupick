@@ -36,6 +36,7 @@ show_menu();
 my @set = ();
 while (1) {
   my $in = prompt($ttyin, $ttyout);
+  chomp $in;
   last unless $in =~ /\S/;
   my $quit = $in =~ s/!\s*$//;
   if ($in =~ /^\s*\?\s*$/) {
