@@ -7,13 +7,16 @@
 # dirty.  Useful following a "git reset HEAD^" to continue work on the
 # stuff you were working on before.  Useful following a failed merge.
 #
+# I would like this to accept a command-line argument that names a
+# commit; it should then edit all the files touched by the commit.
+#
+# There should also be an option to tell it not to suppress ?? files.
 
 use Getopt::Std;
 my %opt = ( e => $ENV{VISUAL} || $ENV{EDITOR} || "emacs",
             c => 0
           );
 getopts('e:c', \%opt) or usage();
-$opt{e} = "/bin/echo" if $opt{c};
 
 chomp(my @changed = grep !/^\?\? /, qx{git status --porcelain});
 exit 1 unless $? == 0;
@@ -24,6 +27,10 @@ die "Fucking shell, how does it work?\n"
 @changed = qw(.) unless @changed;
 chomp(my @lines = qx{find @changed -type f });
 exit 1 unless $? == 0;
+if ($opt{c}) {
+    print join "\n", @lines, "";
+    exit 0;
+}
 
 # maybe should use output of "git var GIT_EDITOR" here?
 # But then I have to involve the !@&*!@*(&!@ shell
