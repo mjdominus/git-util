@@ -12,17 +12,19 @@
 use strict;
 use Getopt::Std;
 my %opt = ( e => $ENV{VISUAL} || $ENV{EDITOR} || "emacs",
-            c => 0
+            c => 0,
+            'q' => 0,
           );
-getopts('e:c', \%opt) or usage();
+getopts('e:cq', \%opt) or usage();
 my $commit = shift;
 my @changed;
 
 if ($commit) {
     chomp(@changed = grep /\S/, qx{git show --pretty="format:" --name-only $commit});
 } else {
-    chomp(@changed = grep !/^\?\? /, qx{git status --porcelain});
+    chomp(@changed = qx{git status --porcelain});
     exit 1 unless $? == 0;
+    @changed = grep !/^\?\? /, @changed unless $opt{q};
     s/^.. // or die "<$_>???\n" for @changed;
     die "Fucking shell, how does it work?\n"
         if grep / /, @changed;
