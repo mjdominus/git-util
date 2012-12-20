@@ -7,7 +7,11 @@
 # dirty.  Useful following a "git reset HEAD^" to continue work on the
 # stuff you were working on before.  Useful following a failed merge.
 #
-# There should also be an option to tell it not to suppress ?? files.
+# Todo: break this program into a git-changed-files command that just
+# emits the names of the changed files, and then git-re-edit can call that
+# and run the editor on the changed files.
+#
+# git-changed-files should accept multiple commit names
 
 use strict;
 use Getopt::Std;
