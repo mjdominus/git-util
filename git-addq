@@ -1,0 +1,3 @@
+#!/bin/sh
+
+git add $(git re-edit -qc | menupick)
