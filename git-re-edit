@@ -30,6 +30,7 @@ if ($commit) {
     exit 1 unless $? == 0;
     @changed = grep !/^\?\? /, @changed unless $opt{q};
     s/^.. // or die "<$_>???\n" for @changed;
+    s/.* -> // for @changed;
     die "Fucking shell, how does it work?\n"
         if grep / /, @changed;
 
