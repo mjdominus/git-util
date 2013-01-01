@@ -1,0 +1,54 @@
+2010-06-11
+
+This will draw a simple, compact graph of the git revision history.
+It will squash the representation of unbranched histories into a 
+single node, labeled with a number of intervening revisions.
+So for example, instead of
+
+* <- foo
+|
+*
+|
+*
+|
+*
+|
+* <- bar
+|
+* * <- baz
+|/
+*
+|
+*
+|
+*
+
+we will have
+
+* <- foo
+| 3
+* <- bar
+|
+* * <- baz
+|/
+*
+| 1
+*
+
+It wil trace backward from HEAD by default, or from the refs named on the
+command line.
+
+It should generate the picture lazily, emitting history as it goes, 
+starting with the most recent, so that if allowed to run uninterrupted
+it will produce the complete graph, but if interrupted it will still produce the
+top part (most recent part) of the complete graph.
+
+2013-01-01
+
+Perhaps the easiest thing is to postprocess the output of git-log,
+because that way I won't have to reimplement all the many options of
+git-log. On the other hand, maybe I could extract just the commit IDs
+from git-log's output and then build the graph myself.
+
+Don't bother with lazy generation unless it's easy; you can add it
+later for the next version.
