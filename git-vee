@@ -7,7 +7,7 @@
 # if the currently-checked-out branch is master, this will compare
 # master and origin/master.  
 #
-# It uses git log --cherry-mark, so you need at least git 1.4.7.1.
+# It uses git log --cherry-mark, so you need at least git 1.7.4.1.
 # If --cherry-mark doesn't work, delete that option from this script.
 #
 # Usage:
