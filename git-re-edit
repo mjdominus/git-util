@@ -10,8 +10,10 @@
 
 use Getopt::Std;
 my %opt = ( e => $ENV{VISUAL} || $ENV{EDITOR} || "emacs",
+            c => 0
           );
-getopts('e:', \%opt) or usage();
+getopts('e:c', \%opt) or usage();
+$opt{e} = "/bin/echo" if $opt{c};
 
 chomp(my @changed = grep !/^\?\? /, qx{git status --porcelain});
 exit 1 unless $? == 0;
