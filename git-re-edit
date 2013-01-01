@@ -8,6 +8,11 @@
 # stuff you were working on before.  Useful following a failed merge.
 #
 
+use Getopt::Std;
+my %opt = ( e => $ENV{VISUAL} || $ENV{EDITOR} || "emacs",
+          );
+getopts('e:', \%opt) or usage();
+
 chomp(my @changed = grep !/^\?\? /, qx{git status --porcelain});
 exit 1 unless $? == 0;
 s/^.. // or die "<$_>???\n" for @changed;
@@ -20,6 +25,6 @@ exit 1 unless $? == 0;
 
 # maybe should use output of "git var GIT_EDITOR" here?
 # But then I have to involve the !@&*!@*(&!@ shell
-my $ed = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
+my $ed = $opt{e};
 exec $ed, @lines;
 die "exec $ed: $!\n";
