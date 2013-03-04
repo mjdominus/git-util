@@ -52,3 +52,83 @@ from git-log's output and then build the graph myself.
 
 Don't bother with lazy generation unless it's easy; you can add it
 later for the next version.
+
+----------------------------------------------------------------
+
+2013-03-03
+Here's a real example:  the output of
+
+       git log --oneline --graph --all --decorate
+
+for a particular state of the git-split-commit repo:
+
+  * 295883f (HEAD, splitpatch) start to implement splitpatch
+  * de65bce test result files have the wrong names
+  *   8a28575 (master) Merge branch 'parsepatch'
+  |\  
+  | * 6efa844 (parsepatch) the Patch loader now parses the entire patch
+  | * 10afce3 the Patch loader can parse files and diff chunks
+  | | * 5433d0d (origin/parsepatch) WIP
+  | |/  
+  | * bbe7878 parse_next now returns a list, not an arrayref
+  | * 7a8fbbd change ParsePatch to Patch
+  | * 48c49c0 the Patch loader can parse the commit message
+  | * f5546ad add longer commit message to test patch
+  | * c454806 the Patch loader can parse the patch header
+  | * dd41f56 parsing begins: the Patch loader can parse the first line
+  | * 181e067 test ->peek and ->pull; chomp input data lines
+  | * 98848f0 GitUtil::ParsePatch reconceived as GitUtil::Patch
+  | * 44bcbf8 basic ParsePatch tests
+  | * 8c22ad4 start test suite for ParsePatch
+  | * 449bca2 convert ParsePatch to use Moo
+  |/  
+  * dcd5df8 (origin/master, origin/HEAD) start make/ dir
+  * 0c724c5 draft of git-split-commit --commit
+  * 9e03ccd another nice test diff
+  * 7865ab0 start ParsePatch module
+  * d7360b5 start FILES
+  * 16351bc add t.dat/split/t1/a directory
+  * 6eb6611 tests for unimplemented MJD::GitUtil::split_patch
+  * 74e1f04 rough out notes about what this will need to do
+  * 4a3be2f initial commit
+
+I want this turned into:
+
+  * 295883f (HEAD, splitpatch) start to implement splitpatch
+  * de65bce test result files have the wrong names
+  *   8a28575 (master) Merge branch 'parsepatch'
+  |\  
+  | * 6efa844 (parsepatch) the Patch loader now parses the entire patch
+  | * 10afce3 the Patch loader can parse files and diff chunks
+  | | * 5433d0d (origin/parsepatch) WIP
+  | |/  
+  | * bbe7878 parse_next now returns a list, not an arrayref
+  | * (10 omitted)
+  |/  
+  * dcd5df8 (origin/master, origin/HEAD) start make/ dir
+  * (7 omitted)
+  * 4a3be2f initial commit
+
+Basically, any commit that has exactly one parent and one child and no
+refs is an opportunity for elision.
+
+If 6efa844 were not the target of the "parsepatch" ref, we would
+certainly turn this:
+
+  | * 6efa844 (parsepatch) the Patch loader now parses the entire patch
+  | * 10afce3 the Patch loader can parse files and diff chunks
+
+into this:
+
+  | * (2 omitted)
+
+Whether to replace this single elidable commit:
+
+  * de65bce test result files have the wrong names
+
+with 
+
+  * (1 omitted)
+
+is not yet clear.
+
