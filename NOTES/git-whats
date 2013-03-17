@@ -1,0 +1,5 @@
+Needs a git-commit hook that detects when you are making a commit to a
+nonmaster branch that has no .whats file, prompts you for a
+message. and then redoes the commit. It should also detect a merge and
+prompt you for a new message, or, if the merge is to master, destroys
+the .whats file automatically.
