@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+
+$ENV{GIT_GET_NO_NEWLINE} = 1;
+
+sub usage {
+  die "Usage:\tgit-whats [commit-ish]
+	git-whats --set 'description'
+	git-whats --clear\n";
+}
+
+use Getopt::Long;
+my $message_file = join "/",
+  scalar(qx{git get repo-rootdir-relative}), ".what";
+my $message;
+my $clear;
+GetOptions ("set=s"  => \$message,
+            "clear"  => \$clear,
+           )
+  or usage();
+
+if ($clear) {
+  # --clear is incompatible with --set MESSAGE
+  usage() if defined($message);
+  $message = "";
+}
+
+if (defined $message) {
+  usage() if @ARGV && (@ARGV != 1 || $ARGV[0] ne "HEAD");
+
+  if ($message =~ /\S/) {
+    $message .= "\n" unless $message =~ /\n\z/;
+    open my($f), ">", $message_file
+      or die "Couldn't write '$message_file': $!";
+    print $f $message;
+    system(qw(git add), $message_file) == 0
+      or die sprintf "git-add '$message_file' failed with status %d\n",
+        $? >> 8;
+    system(qw(git commit --amend -C HEAD --), $message_file) == 0
+      or die sprintf "git-commit -C HEAD failed with status %d\n",
+        $? >> 8;
+  } else {
+    system(qw(git rm), $message_file) == 0
+      or die sprintf "git-rm '$message_file' failed with status %d\n",
+        $? >> 8;
+    system(qw(git commit --amend -C HEAD)) == 0
+      or die sprintf "git-commit -C HEAD failed with status %d\n",
+        $? >> 8;
+  }
+  exit 0;
+} else {
+  my ($commit_ish) = shift @ARGV || 'HEAD';
+  system(qw(git show), "$commit_ish:$message_file");
+}
+
