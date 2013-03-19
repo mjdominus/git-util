@@ -1,3 +1,6 @@
+The whole mechanism here is kind of stupid.  Why not see if you can
+use git-notes to store the information you want?
+
 Needs a git-commit hook that detects when you are making a commit to a
 nonmaster branch that has no .whats file, prompts you for a
 message. and then redoes the commit. It should also detect a merge and
