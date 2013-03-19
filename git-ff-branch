@@ -23,15 +23,15 @@ if ($remote_name) {
     chomp $head;
     my $tracking = qx{git-get branch-remote '$head'};
     next unless $tracking eq $remote_name;
-    my $remote_branch = qx{git-get branch-remote-branch '$head'};
-    ff_ref($head, $remote_branch);
+    my $tracked_branch = qx{git-get branch-tracked-branch '$head'};
+    ff_ref($head, $tracked_branch);
   }
 } else {
   my ($refname, $target) = @ARGV;
   $refname ||= qx{git get current-branch-name}
     or error "Can't fast-forward detached HEAD";
   $refname or usage();
-  $target ||= qx{git get branch-remote-branch '$refname'}
+  $target ||= qx{git get branch-tracked-branch '$refname'}
     or error "Can't find upstream branch for '$refname'";
   ff_ref($refname, $target, "die on failure");
 }

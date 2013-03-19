@@ -47,14 +47,14 @@ sub branch_remote {
   _run("git config --get 'branch.$branch.remote'");
 }
 
-sub branch_remote_branch {
+sub branch_tracked_branch {
   my ($branch) = @_;
   $branch ||= current_branch_name();
   my $remote = branch_remote($branch) or exit 1;
   my $remote_ref = _run("git config --get 'branch.$branch.merge'");
   $remote_ref =~ s{^refs/heads/}{};
   $remote_ref or exit 1;
-  return "$remote/$remote_ref";
+  return $remote eq "." ? $remote_ref : "$remote/$remote_ref";
 }
 
 sub is_working_tree_clean {
