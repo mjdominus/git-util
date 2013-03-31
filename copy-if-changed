@@ -7,14 +7,14 @@ use File::Spec::Functions;
 use File::Basename qw(basename dirname);
 
 use Getopt::Std;
-my %opt = (v => 0);
-getopts('v', \%opt) or usage();
+my %opt = (v => 0, n => 0);
+getopts('vn', \%opt) or usage();
 my $dst = pop @ARGV or usage();
-
+$opt{v} = 1 if $opt{n};
 
 sub usage {
-  print STDERR "usage: copy-if-changed [-v] src dst
-\tcopy-if-changed [-v] srcs... dstdir\n";
+  print STDERR "usage: copy-if-changed [-vn] src dst
+       copy-if-changed [-vn] srcs... dstdir\n";
   exit 2;
 }
 
@@ -53,7 +53,7 @@ sub copy_if_changed {
     warn "$dst is up to date; no change\n" if $opt{v};
   } else {
     warn "$src -> $dst\n" if $opt{v};
-    copy_file($src, $dst);
+    copy_file($src, $dst) unless $opt{n};
   }
 }
 
