@@ -9,8 +9,6 @@ sub usage {
 }
 
 use Getopt::Long;
-my $message_file = join "/",
-  scalar(qx{git get repo-rootdir-relative}), ".what";
 my $message;
 my $clear;
 GetOptions ("set=s"  => \$message,
@@ -24,31 +22,30 @@ if ($clear) {
   $message = "";
 }
 
-if (defined $message) {
-  usage() if @ARGV && (@ARGV != 1 || $ARGV[0] ne "HEAD");
+usage() if @ARGV && @ARGV != 1;
+my $branch = shift;
+$branch =  qx{git get current-branch-name}
+  if ! defined($branch) || $branch eq "HEAD";
 
-  if ($message =~ /\S/) {
-    $message .= "\n" unless $message =~ /\n\z/;
-    open my($f), ">", $message_file
-      or die "Couldn't write '$message_file': $!";
-    print $f $message;
-    system(qw(git add), $message_file) == 0
-      or die sprintf "git-add '$message_file' failed with status %d\n",
-        $? >> 8;
-    system(qw(git commit --amend -C HEAD --), $message_file) == 0
-      or die sprintf "git-commit -C HEAD failed with status %d\n",
-        $? >> 8;
+my $key = config_key($branch);
+
+if (defined $message) {
+  die "Detached HEAD\n" unless $branch =~ /\S/;
+  if ($message eq "") {
+    exit system(qw(git config --unset), $key);
   } else {
-    system(qw(git rm), $message_file) == 0
-      or die sprintf "git-rm '$message_file' failed with status %d\n",
-        $? >> 8;
-    system(qw(git commit --amend -C HEAD)) == 0
-      or die sprintf "git-commit -C HEAD failed with status %d\n",
-        $? >> 8;
+    exit system(qw(git config), $key, $message);
   }
-  exit 0;
 } else {
-  my ($commit_ish) = shift @ARGV || 'HEAD';
-  system(qw(git show), "$commit_ish:$message_file");
+  # Deal with arbitrary commit-ish some other time
+  system(qw(git config), config_key($branch));
 }
 
+sub config_key {
+  my ($ref) = @_;
+  return "branch.$ref.what";
+}
+
+sub usage {
+  die "Usage: git-whats [--set=...] [--clear] [branch]\n";
+}
