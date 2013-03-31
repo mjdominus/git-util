@@ -1,0 +1,86 @@
+#!/usr/bin/perl
+
+use strict;
+
+use Digest::MD5 qw(md5);
+use File::Spec::Functions;
+use File::Basename qw(basename dirname);
+
+use Getopt::Std;
+my %opt = (v => 0);
+getopts('v', \%opt) or usage();
+my $dst = pop @ARGV or usage();
+
+
+sub usage {
+  print STDERR "usage: copy-if-changed [-v] src dst
+\tcopy-if-changed [-v] srcs... dstdir\n";
+  exit 2;
+}
+
+if (-d $dst) {
+  for my $src (@ARGV) {
+    copy_if_changed($src, catfile($dst, basename($src)));
+  }
+} elsif (-f $dst || ! -e _) {
+  @ARGV == 1 or usage();
+  copy_if_changed($ARGV[0], $dst);
+} else {
+  die "Destination '$dst' is neither a file nor a directory\n";
+}
+
+use Errno qw(ENOENT !);
+
+sub copy_if_changed {
+  my ($src, $dst) = @_;
+  my $dh = md5_file($dst,
+                    sub {
+                      if ($!{ENOENT}) {
+                        return "";
+                      } else {
+                        warn "Couldn't open file '$dst': $!; skipping\n";
+                        return;
+                      }
+                    });
+
+  my $sh = md5_file($src,
+                    sub { warn "Couldn't open file '$src': $!; skipping\n";
+                          return;
+                        })
+    or return;
+
+  if ($sh eq $dh) {
+    warn "$dst is up to date; no change\n" if $opt{v};
+  } else {
+    warn "$src -> $dst\n" if $opt{v};
+    copy_file($src, $dst);
+  }
+}
+
+use File::Temp qw(tempfile);
+sub copy_file {
+  my ($sf, $df) = @_;
+  my $dir = dirname($df);
+  open my($s), "<". $sf
+    or die "Couldn't open file '$sf': $!";
+  my ($d, $tf) = tempfile(".tmpfileXXXXX", $dir)
+    or die "Couldn't start tempfile in directory '$dir': $!";
+  { local $/ = 8192;
+    while (my $rec = <$s>) {
+      print $d $rec or die "Couldn't write tempfile: $!";
+    }
+    close $d or die "Couldn't finish tempfile: $!";
+  }
+  rename $tf => $df
+    or die "Couldn't rename tempfile '$tf' in directory '$dir'\n";
+  return 1;
+}
+
+sub md5_file {
+  my ($file, $fail) = @_;
+  my $fh;
+  open($fh, "<", $file)
+    and return Digest::MD5->new->addfile($fh)->digest;
+  return $fail ? $fail->($file) : undef;
+}
+
