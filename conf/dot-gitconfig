@@ -1,0 +1,30 @@
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+[core]
+  excludesfile = /home/mjd/.gitignore
+  editor = emacs -nw
+[alias]
+  branches = for-each-ref --format='%(refname:short)'
+  cached = diff --cached
+  co = checkout
+  cp = cherry-pick
+  ff = merge --ff-only
+  fixup = commit --amend -C HEAD
+  hist = log --all --decorate --graph --oneline
+  ix = diff --cached
+  patch = apply
+  pullr = pull --rebase
+  rprune = remote prune
+  s = status -s
+  st = status
+  statuis = status
+  type = cat-file -t
+[pager]
+  show-branch = yes
+[rebase]
+  autosquash = true
+[user]
+  name = Mark Jason Dominus (陶敏修)
+  email = mjd@plover.com
