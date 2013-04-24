@@ -2,3 +2,6 @@
 A git-commit hook that refuses to commit a change that adds a line
 that matches 'DO NOT COMMIT'.
 
+Fix up git-ff-branch to display a summary of changes like the one tht
+git-merge does when it fast-forwards the current branch.
+
