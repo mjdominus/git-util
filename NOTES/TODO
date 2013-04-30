@@ -1,5 +1,7 @@
 A git-commit hook that refuses to commit a change that adds a line
-that matches 'DO NOT COMMIT'.
+that matches 'DO NOT COMMIT', or 'XXX'.  Actually RJBS has a better
+suggestion: "I'd rather have something like that which prevents it
+from being committed to (or merged to) branch master".
 
 Fix up git-ff-branch to display a summary of changes like the one tht
 git-merge does when it fast-forwards the current branch.
