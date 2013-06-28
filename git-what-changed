@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+open my($log), "-|", qw(git log  --name-only --oneline), @ARGV
+  or die "Couldn't fork: $!";
+
+my %seen;
+while (<$log>) {
+  next if /\A [0-9a-f]{7} [ ] /x;
+  print unless $seen{$_}++;
+}
