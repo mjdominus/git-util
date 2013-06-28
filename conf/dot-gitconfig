@@ -10,7 +10,10 @@
   cached = diff --cached
   co = checkout
   cp = cherry-pick
+  detach = checkout --detach
   ff = merge --ff-only
+  ffm = ff-branch -v master
+  figg = diff
   fixup = commit --amend -C HEAD
   hist = log --all --decorate --graph --oneline
   ix = diff --cached
