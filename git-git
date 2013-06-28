@@ -1,0 +1,3 @@
+#!/usr/bin/perl
+
+exec "git",@ARGV or die "exec $ARGV[0]...: $!\n";
