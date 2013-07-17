@@ -1,6 +1,6 @@
 Most of these programs have intelligible usage messages, or comments
 in the source code that explain the usage, or both.  My favorites are
-git-vee` and `git-re-edit`.  Here is a brief summary of what they do.
+`git-vee` and `git-re-edit`.  Here is a brief summary of what they do.
 
 `git-addq` is a simple wrapper around `git-re-edit` and
 [`menupick`](https://github.com/mjdominus/util/blob/master/bin/menupick)
@@ -100,3 +100,7 @@ the files named in its arguments.
 
 `bash_completion.d` contains completion scripts, which, if sourced,
 will enable bash command-line completion for some of these commands.
+
+-------
+
+A discussion of how I use some of these tools is available at [My Git Habits](http://blog.plover.com/prog/git-habits.html).
