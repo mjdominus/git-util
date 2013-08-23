@@ -104,6 +104,22 @@ sub is_same_object {
   exit($A eq $B ? 0 : 1);
 }
 
+sub config_keys {
+  my ($pat) = @_ ? $_[0] : '.';
+  my @keys;
+  open my ($fh), "-|", "git config --null --list"
+    or die "couldn't run git-config: $!";
+  { local $/ = "\0";
+    while (my $line = <$fh>) {
+      chomp $line;
+      my ($k, $v) = split /\n/, $line, 2;
+      push @keys, "$k\n" if $k =~ /$pat/o;
+    }
+  }
+  chomp $keys[-1]; # wrapper will append an extra newline on output
+  return @keys;
+}
+
 sub _run {
   my @cmd = @_;
   open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";
