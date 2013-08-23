@@ -6,7 +6,19 @@ from being committed to (or merged to) branch master".
 Fix up git-ff-branch to display a summary of changes like the one tht
 git-merge does when it fast-forwards the current branch.
 
-git-re-edit needs to be able to take a range of commits and edit all the files changedby any of those commits. 
-I'd like to implement that as part of a general git-what-changed command that just lists the files that changed in a
-commit or commits.  Picking the filenames out of git-diff --stat with its stupid abbreviating behavior is getting old.
-Then I would also remove the -c flag from git-re-edit.
+git-re-edit needs to be able to take a range of commits and edit all
+the files changed by any of those commits.  I'd like to implement that
+as part of a general git-what-changed command that just lists the
+files that changed in a commit or commits.  Picking the filenames out
+of git-diff --stat with its stupid abbreviating behavior is getting
+old.  Then I would also remove the -c flag from git-re-edit.
+
+git-re-edit should also get a flag to tell it to only edit the files
+that have a conflicted merge state.  That would be useful for fixing
+up conflicted merges.
+
+git-what-changed will emit the names of files that no longer exist.
+For example, if you create file foo, then move it to bar,
+git-what-changed will emit both names.  The default should emut bar
+but not foo.
+

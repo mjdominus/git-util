@@ -12,10 +12,6 @@ repository](https://github.com/mjdominus/util).
 `commit`, that points to `git-command`, then you now have a `commit`
 command that actually runs `git-commit`.
 
-`git-git` is the reverse of `git-command`.  If you accidentally type
-`git git commit`, then `git-git` will silently run `git commit` for
-you.
-
 `git-fetchs` fetches all branches from all the remotes that you have
 previously fetched from.  This is primarily useful if you have a bunch
 of remotes that you don't normally fetch.  At a previous employer, we
@@ -44,6 +40,10 @@ successfully if so, and unsuccessfully if not. It is easy to drop in
 new subcommands; every time I find out there is no easy way to
 determine some bit of git information, I drop it in here. `git get`
 with no argument prints a list of available information.
+
+`git-git` is the reverse of `git-command`.  If you accidentally type
+`git git commit`, then `git-git` will silently run `git commit` for
+you.
 
 `git-re-edit` invokes the editor on all the currently-dirty files:
 
@@ -86,7 +86,7 @@ in both branches are indicated with `=` signs.
 `git-log`, and then emits the filenames, and only the filenames, that
 have been changed in the selected commits.  By default this lists the
 changed files in reverse chronological order.  I have an alias, `git
-mine`, which means `git what-changed --author=mjd`, which lists the 
+myfiles`, which means `git what-changed --author=mjd`, which lists the 
 files I have recently touched. 
 
 `git-whats` records a description for a branch, or prints a previously
