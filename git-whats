@@ -2,25 +2,33 @@
 
 $ENV{GIT_GET_NO_NEWLINE} = 1;
 
-sub usage {
-  die "Usage:\tgit-whats [commit-ish]
-	git-whats --set 'description'
-	git-whats --clear\n";
-}
-
 use Getopt::Long;
 my $message;
-my $clear;
-GetOptions ("set=s"  => \$message,
-            "clear"  => \$clear,
+my ($clear, $prune, $verbose, $noaction);
+GetOptions ("set=s"     => \$message,
+            "clear"     => \$clear,
+            "prune"     => \$prune,
+            "verbose|v" => \$verbose,
+            "dry-run|n" => \$noaction,
            )
   or usage();
 
+{
+  if (!!$clear + !!$prune + !!defined($message) > 1) {
+    warn "no more than one of --clear, --set, and --prune is allowed\n";
+    usage();
+  }
+  if ($prune && @ARGV) {
+    warn "--prune doesn't take any argument\n";
+    usage();
+  }
+}
+
 if ($clear) {
-  # --clear is incompatible with --set MESSAGE
-  usage() if defined($message);
   $message = "";
 }
+
+prune_whats(), exit if $prune;
 
 usage() if @ARGV && @ARGV != 1;
 my $branch = shift;
@@ -46,6 +54,20 @@ sub config_key {
   return "branch.$ref.what";
 }
 
+sub prune_whats {
+  chomp(my @heads = qx{git get heads});
+  my %head = map { $_ => 1 } @heads;
+  for my $key (qx{git get config-keys}) {
+    chomp $key;
+    my ($branch) = $key =~ /^branch\.([^.]+)\.what$/ or next;
+    if (! $head{$branch}) {
+      warn "deleting $key\n";
+      system("git config --unset-all $key") unless $noaction;
+    }
+  }
+}
+
 sub usage {
-  die "Usage: git-whats [--set=...] [--clear] [branch]\n";
+  die "Usage: git-whats [--set=...] [--clear] [branch]
+       git-whats [-v] --prune\n";
 }
