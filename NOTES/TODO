@@ -19,6 +19,9 @@ up conflicted merges.
 
 git-what-changed will emit the names of files that no longer exist.
 For example, if you create file foo, then move it to bar,
-git-what-changed will emit both names.  The default should emut bar
+git-what-changed will emit both names.  The default should emit bar
 but not foo.
 
+2013-09-13: Combine git-what-changed with git-vee to emit all the
+files that have been touched since this branch diverged from branch X,
+either master or its tracked branch.
