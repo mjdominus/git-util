@@ -8,6 +8,7 @@ my %opt = (R => 0);
 getopts('R', \%opt) or usage();
 $ENV{GIT_GET_NO_NEWLINE} = 1;
 
+@ARGV < 2 or usage();
 my $dir = @ARGV ? $ARGV[0] : qw(.);
 my $cwd = Cwd::abs_path();
 my $repo = qx{git get repo-rootdir-absolute}
@@ -46,9 +47,9 @@ while (<GIT>) {
 sub is_in {
   my ($this, $that) = @_;
   my $rel_path = File::Spec->abs2rel( $this, $that ) ;
-#  warn "$this rel to $that -> $rel_path\n";
   # File::Spec::is_upwards purportedly does this, but is completely broken
   # See https://rt.cpan.org/Ticket/Display.html?id=90636
+#  warn "$this rel to $that -> $rel_path\n";
   if (grep $_ eq "..", split m{/}, $rel_path) {
     return;
   } else {
@@ -59,6 +60,7 @@ sub is_in {
 sub usage {
   print STDERR "git-lst [-R] [directory]
 
-\tdirectory defaults to current directory\n";
+\tdirectory defaults to the current directory.
+\tOnly one directory is allowed.\n";
   exit 2;
 }

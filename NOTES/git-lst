@@ -9,3 +9,5 @@ Plusses to add:
 * flag to say whether to recurse into subdirs (easy)
 * flag to say whether to mention dates that files were modified in the
   working tree
+* option to specify last commit date relative to *which branch*
+
