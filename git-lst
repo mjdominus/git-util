@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+use File::Spec qw(abs2rel);
+use Cwd;
+
+my $dir = @ARGV ? $ARGV[0] : qw(.);
+
+my $pager = qx{git config core.pager};
+$pager =~ s/\$(\w+)/$ENV{$1}/g;
+
+open PAGER, "|-", $pager
+  or die "Couldn't run pager ($pager)\n";
+open GIT, "-|", qw(git log --format=format:%ai --name-only --), $dir;
+my $date;
+while (<GIT>) {
+  chomp;
+  if (/^2[0-9]/) {
+    $date = $_; next;
+  } elsif (length($_) == 0 || $SEEN{$_}++) {
+    next;
+  } else {
+    my $file = $_;
+    warn("     skipping\n"),
+      next unless my ($relpath) = is_in($_, $dir);
+#    next if $relpath =~ m{/};
+    printf PAGER "%s %s\n", $date, $relpath;
+  }
+}
+
+# See https://rt.cpan.org/Ticket/Display.html?id=90636
+sub is_in {
+  my ($this, $that) = @_;
+  my $rel_path = File::Spec->abs2rel( $this, $that ) ;
+  # File::Spec::is_upwards purportedly does this, but is completely broken
+  if (grep $_ eq "..", split m{/}, $path) {
+    return;
+  } else {
+    return $rel_path;
+  }
+}

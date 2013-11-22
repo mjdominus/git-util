@@ -45,6 +45,14 @@ with no argument prints a list of available information.
 `git git commit`, then `git-git` will silently run `git commit` for
 you.
 
+`git-lst` lists the files in the specified directory, from
+most-recently to least-recently committed, with the last commit times.
+It is very much a work in progress; it should have many options, but
+doesn't. Unlike
+`[git-ls-date](https://pypi.python.org/pypi/git-ls-date)` it is fast
+and doesn't fail completely in large repos. The name `lst` is supposed
+to remind you of `ls -t` and also of "LaST changes".
+
 `git-re-edit` invokes the editor on all the currently-dirty files:
 
 1. Suppose you left your working directory dirty when you went home,

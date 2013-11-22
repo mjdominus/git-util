@@ -1,0 +1,10 @@
+
+Minuses to fix:
+* 
+
+Plusses to add:
+* command-line flag to set time output format
+* flag to say whether to mention files that no longer exist
+* flag to say whether to recurse into subdirs (easy)
+* flag to say whether to mention dates that files were modified in the
+  working tree
