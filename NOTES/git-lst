@@ -1,6 +1,7 @@
 
 Minuses to fix:
-* 
+* Uh oh, I forgot what I was going to write here
+* git lst FILE  reports the right time, but claims that the file is named '.'
 
 Plusses to add:
 * command-line flag to set time output format

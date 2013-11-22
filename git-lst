@@ -1,16 +1,34 @@
 #!/usr/bin/perl
 use File::Spec qw(abs2rel);
+use Getopt::Std;
 use Cwd;
+use strict;
+
+my %opt = (R => 0);
+getopts('R', \%opt) or usage();
+$ENV{GIT_GET_NO_NEWLINE} = 1;
 
 my $dir = @ARGV ? $ARGV[0] : qw(.);
+my $cwd = Cwd::abs_path();
+my $repo = qx{git get repo-rootdir-absolute}
+  or die "git-get required";
+my $truedir = $dir eq "." ?
+    File::Spec->abs2rel($cwd, $repo) :
+    $dir;
+
+#warn "repo: $repo\n";
+#warn "cwd: $cwd\n";
+#warn "truedir: $truedir";
 
 my $pager = qx{git config core.pager};
 $pager =~ s/\$(\w+)/$ENV{$1}/g;
 
 open PAGER, "|-", $pager
   or die "Couldn't run pager ($pager)\n";
+
+
 open GIT, "-|", qw(git log --format=format:%ai --name-only --), $dir;
-my $date;
+my ($date, %SEEN);
 while (<GIT>) {
   chomp;
   if (/^2[0-9]/) {
@@ -18,22 +36,29 @@ while (<GIT>) {
   } elsif (length($_) == 0 || $SEEN{$_}++) {
     next;
   } else {
-    my $file = $_;
-    warn("     skipping\n"),
-      next unless my ($relpath) = is_in($_, $dir);
-#    next if $relpath =~ m{/};
+#    warn("     skipping $_\n"),
+      next unless my ($relpath) = is_in($_, $truedir);
+    next if ! $opt{R} && $relpath =~ m{/};
     printf PAGER "%s %s\n", $date, $relpath;
   }
 }
 
-# See https://rt.cpan.org/Ticket/Display.html?id=90636
 sub is_in {
   my ($this, $that) = @_;
   my $rel_path = File::Spec->abs2rel( $this, $that ) ;
+#  warn "$this rel to $that -> $rel_path\n";
   # File::Spec::is_upwards purportedly does this, but is completely broken
-  if (grep $_ eq "..", split m{/}, $path) {
+  # See https://rt.cpan.org/Ticket/Display.html?id=90636
+  if (grep $_ eq "..", split m{/}, $rel_path) {
     return;
   } else {
     return $rel_path;
   }
+}
+
+sub usage {
+  print STDERR "git-lst [-R] [directory]
+
+\tdirectory defaults to current directory\n";
+  exit 2;
 }
