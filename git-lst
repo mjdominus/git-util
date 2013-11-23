@@ -28,12 +28,12 @@ open PAGER, "|-", $pager
   or die "Couldn't run pager ($pager)\n";
 
 
-open GIT, "-|", qw(git log --format=format:%ai --name-only --), $dir;
+open GIT, "-|", qw(git log --format=format:%x00%ai --name-only --), $dir;
 my ($date, %SEEN);
 while (<GIT>) {
   chomp;
-  if (/^2[0-9]/) {
-    $date = $_; next;
+  if (/\x00(.*)/) {
+    $date = $1; next;
   } elsif (length($_) == 0 || $SEEN{$_}++) {
     next;
   } else {
