@@ -4,8 +4,8 @@ use Getopt::Std;
 use Cwd;
 use strict;
 
-my %opt = (R => 0);
-getopts('R', \%opt) or usage();
+my %opt = (R => 0, d => 'ai');
+getopts('Rd:', \%opt) or usage();
 $ENV{GIT_GET_NO_NEWLINE} = 1;
 
 @ARGV < 2 or usage();
@@ -28,7 +28,8 @@ if (-t STDOUT and my $pager = qx{git get pager-command}) {
   open PAGER, ">&STDOUT";
 }
 
-open GIT, "-|", qw(git log --format=format:%x00%ai --name-only --), $dir;
+open GIT, "-|", "git", "log", "--format=format:%x00%$opt{d}", "--name-only",
+  "--", $dir;
 my ($date, %SEEN);
 while (<GIT>) {
   chomp;
@@ -58,9 +59,15 @@ sub is_in {
 }
 
 sub usage {
-  print STDERR "git-lst [-R] [directory]
-
+  print STDERR "git-lst [-R] [-d date-format] [directory]
 \tdirectory defaults to the current directory.
+\tdate-format is as per git-log --format:
+\t    -d ad : author date
+\t    -d aD : author date, RFC2822 style
+\t    -d ar : author date, relative
+\t    -d at : author date, UNIX timestamp
+\t    -d ai : author date, ISO 8601 format (the default)
+\t  and -d cX similarly for the commit dates
 \tOnly one directory is allowed.\n";
   exit 2;
 }
