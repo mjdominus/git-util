@@ -120,6 +120,22 @@ sub config_keys {
   return @keys;
 }
 
+# This is the complete pager command git uses, suitable for passing to
+# "sh -c", and including the environment setting to specify the
+# default pager flags.  Supply the -n flag to omit the environment
+# setting, if you need to pass to execve or something.  Supply the -v
+# flag if you want environment variables replaced by their values.
+sub pager_command {
+  my $pager = _run(qw(git config core.pager));
+  my %opt;
+  for (@_) {
+    next unless s/^-//;
+    $opt{$_} = 1 for split //;
+  }
+  $pager =~ s/\$(\w+)/$ENV{$1}/g if $opt{v};
+  return $opt{n} ? $pager : join(" ", "LESS=FRSX", $pager);
+}
+
 sub _run {
   my @cmd = @_;
   open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";
