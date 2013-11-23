@@ -21,12 +21,12 @@ my $truedir = $dir eq "." ?
 #warn "cwd: $cwd\n";
 #warn "truedir: $truedir";
 
-my $pager = qx{git config core.pager};
-$pager =~ s/\$(\w+)/$ENV{$1}/g;
-
-open PAGER, "|-", $pager
-  or die "Couldn't run pager ($pager)\n";
-
+if (-t STDOUT and my $pager = qx{git get pager-command}) {
+  open PAGER, "|-", $pager
+    or die "Couldn't run pager ($pager)\n";
+} else {
+  open PAGER, ">&STDOUT";
+}
 
 open GIT, "-|", qw(git log --format=format:%x00%ai --name-only --), $dir;
 my ($date, %SEEN);
