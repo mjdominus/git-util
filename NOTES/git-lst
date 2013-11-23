@@ -9,3 +9,13 @@ Plusses to add:
 * flag to say whether to recurse into subdirs (easy)
 * flag to say whether to mention dates that files were modified in the
   working tree
+* option to specify last commit date relative to *which branch*
+* output format using --format=%ai etc.
+* More than one argument
+  * git lst file file file
+  * git lst dir1 dir2
+
+Questions:
+* What if a file was added, removed, then added back?  List the dates for both files?
+  * No, this tool isn't a replacement for git-log.  It's for a first look, not for every detail.
+

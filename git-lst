@@ -8,6 +8,7 @@ my %opt = (R => 0);
 getopts('R', \%opt) or usage();
 $ENV{GIT_GET_NO_NEWLINE} = 1;
 
+@ARGV < 2 or usage();
 my $dir = @ARGV ? $ARGV[0] : qw(.);
 my $cwd = Cwd::abs_path();
 my $repo = qx{git get repo-rootdir-absolute}
@@ -20,19 +21,19 @@ my $truedir = $dir eq "." ?
 #warn "cwd: $cwd\n";
 #warn "truedir: $truedir";
 
-my $pager = qx{git config core.pager};
-$pager =~ s/\$(\w+)/$ENV{$1}/g;
+if (-t STDOUT and my $pager = qx{git get pager-command}) {
+  open PAGER, "|-", $pager
+    or die "Couldn't run pager ($pager)\n";
+} else {
+  open PAGER, ">&STDOUT";
+}
 
-open PAGER, "|-", $pager
-  or die "Couldn't run pager ($pager)\n";
-
-
-open GIT, "-|", qw(git log --format=format:%ai --name-only --), $dir;
+open GIT, "-|", qw(git log --format=format:%x00%ai --name-only --), $dir;
 my ($date, %SEEN);
 while (<GIT>) {
   chomp;
-  if (/^2[0-9]/) {
-    $date = $_; next;
+  if (/\x00(.*)/) {
+    $date = $1; next;
   } elsif (length($_) == 0 || $SEEN{$_}++) {
     next;
   } else {
@@ -46,9 +47,9 @@ while (<GIT>) {
 sub is_in {
   my ($this, $that) = @_;
   my $rel_path = File::Spec->abs2rel( $this, $that ) ;
-#  warn "$this rel to $that -> $rel_path\n";
   # File::Spec::is_upwards purportedly does this, but is completely broken
   # See https://rt.cpan.org/Ticket/Display.html?id=90636
+#  warn "$this rel to $that -> $rel_path\n";
   if (grep $_ eq "..", split m{/}, $rel_path) {
     return;
   } else {
@@ -59,6 +60,7 @@ sub is_in {
 sub usage {
   print STDERR "git-lst [-R] [directory]
 
-\tdirectory defaults to current directory\n";
+\tdirectory defaults to the current directory.
+\tOnly one directory is allowed.\n";
   exit 2;
 }
