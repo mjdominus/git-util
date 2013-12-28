@@ -35,3 +35,15 @@ if ($commit) {
 my $sep = $opt{0} ? "\0" : "\n";
 print join $sep, @changed, "";
 exit 0;
+
+sub usage {
+    print STDERR "git dirtyfiles [-q] [-0] [commit]
+    list the names of files that have been changed since the last commit,
+    one per line (or separated by NUL if -0 is given)
+
+    With -q, include files that are unknown to Git
+
+    With a commit, list the names of the files that were changed in that commit
+";
+    exit 2;
+}

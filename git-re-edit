@@ -7,7 +7,8 @@
 
 use strict;
 use Getopt::Std;
-my %opt = ( e => $ENV{VISUAL} || $ENV{EDITOR} || "emacs",
+my $EDITOR = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
+my %opt = ( e => $EDITOR,
             c => 0,
             'q' => 0,
           );
@@ -45,3 +46,17 @@ unless (@files) {
 my $ed = $opt{e};
 exec $ed, @files;
 die "exec $ed: $!\n";
+
+sub usage {
+    print STDERR "git re-edit [-cq] [-e editor] [commit]
+    edit the files in the working tree that are different since the last commit
+
+    With -q, also edit files that are unknown to Git.
+    With -c, print what would be edited but don't run the editor. (Deprecated, use git-dirtyfiles instead.)
+
+    With a commit, edit the files that were changed in that commit.
+
+    The default editor is $EDITOR; override with \$VISUAL, \$EDITOR, or with -e.
+";
+    exit 2;
+}
