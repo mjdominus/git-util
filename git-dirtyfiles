@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+#
+# TODO: Still fails when files may contain spaces
+#
+# Should accept multiple commit names or commit ranges
+#
+# I think it fails when the WD is not the root of the repo
+
+use strict;
+use Getopt::Std;
+my %opt = ( q => 0,
+            0 => $ENV{GIT_DIRTYFILES_NULSEP} ? 1 : 0,
+    );
+
+
+getopts('q0', \%opt) or usage();
+my $commit = shift;
+my @changed;
+
+if ($commit) {
+    chomp(@changed = grep /\S/, qx{git show --pretty="format:" --name-only $commit});
+} else {
+    chomp(@changed = qx{git status --porcelain});
+    exit 1 unless $? == 0;
+    @changed = grep !/^\?\? /, @changed unless $opt{q};
+    s/^.. // or die "<$_>???\n" for @changed;
+    s/.* -> // for @changed;
+    die "Fucking shell, how does it work?\n"
+        if grep / /, @changed;
+
+    chomp(@changed = qx{find @changed -type f });
+    exit 1 unless $? == 0;
+}
+
+my $sep = $opt{0} ? "\0" : "\n";
+print join $sep, @changed, "";
+exit 0;

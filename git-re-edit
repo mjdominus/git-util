@@ -1,17 +1,9 @@
 #!/usr/bin/perl
 #
-# Still fails when files may contain spaces
-#
 # Run the editor on all the files that have been modified from the
 # current index.  Useful to resume work when you left the working tree
 # dirty.  Useful following a "git reset HEAD^" to continue work on the
 # stuff you were working on before.  Useful following a failed merge.
-#
-# Todo: break this program into a git-changed-files command that just
-# emits the names of the changed files, and then git-re-edit can call that
-# and run the editor on the changed files.
-#
-# git-changed-files should accept multiple commit names
 
 use strict;
 use Getopt::Std;
@@ -21,34 +13,35 @@ my %opt = ( e => $ENV{VISUAL} || $ENV{EDITOR} || "emacs",
           );
 getopts('e:cq', \%opt) or usage();
 my $commit = shift;
-my @changed;
 
-if ($commit) {
-    chomp(@changed = grep /\S/, qx{git show --pretty="format:" --name-only $commit});
-} else {
-    chomp(@changed = qx{git status --porcelain});
-    exit 1 unless $? == 0;
-    @changed = grep !/^\?\? /, @changed unless $opt{q};
-    s/^.. // or die "<$_>???\n" for @changed;
-    s/.* -> // for @changed;
-    die "Fucking shell, how does it work?\n"
-        if grep / /, @changed;
-
-    unless (@changed) {
-        warn "No files to edit\n";
-        exit;
-    }
-    chomp(@changed = qx{find @changed -type f });
-    exit 1 unless $? == 0;
-}
+my @command = (qw(git dirtyfiles),
+               ($opt{q} ? ('-q') : ()),
+               (defined($commit) ? ($commit) : ()),
+    );
 
 if ($opt{c}) {
-    print join "\n", @changed, "";
-    exit 0;
+    exec @command
+        or die "Couldn't run @command: $!";
 }
 
+my @files;
+{
+    local $ENV{GIT_DIRTYFILES_NULSEP} = 1;
+    open my ($f), "-|", @command
+        or die "Couldn't run @command: $!";
+    local $/ = "\0";
+    chomp(@files = <$f>);
+    close $f
+        or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
+}
+
+unless (@files) {
+    warn "No files to edit\n";
+    exit;
+}
+    
 # maybe should use output of "git var GIT_EDITOR" here?
 # But then I have to involve the !@&*!@*(&!@ shell
 my $ed = $opt{e};
-exec $ed, @changed;
+exec $ed, @files;
 die "exec $ed: $!\n";
