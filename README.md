@@ -12,6 +12,12 @@ repository](https://github.com/mjdominus/util).
 `commit`, that points to `git-command`, then you now have a `commit`
 command that actually runs `git-commit`.
 
+`git-dirtyfiles` lists the files in the repository that have been
+edited since the last commit, ingnoring unknown files by default, but
+including them if you pass `-q`.  With a commit argmuent, lists the
+files that were changed in that commit.  This exists mainly to be a
+backend for `git-re-edit`; see below.
+
 `git-fetchs` fetches all branches from all the remotes that you have
 previously fetched from.  This is primarily useful if you have a bunch
 of remotes that you don't normally fetch.  At a previous employer, we
@@ -53,7 +59,8 @@ doesn't. Unlike
 and doesn't fail completely in large repos. The name `lst` is supposed
 to remind you of `ls -t` and also of "LaST changes".
 
-`git-re-edit` invokes the editor on all the currently-dirty files:
+`git-re-edit` runs `git-dirtyfiles` and invokes the editor on all the
+currently-dirty files:
 
 1. Suppose you left your working directory dirty when you went home,
 and for some reason the editor has exited, and you want to open up the
