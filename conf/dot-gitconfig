@@ -11,10 +11,16 @@
   cached = diff --cached
   co = checkout
   cp = cherry-pick
+  detach = checkout --detach
+  df = dirtyfiles
   ff = merge --ff-only
+  ffm = ff-branch -v master
+  figg = diff
   fixup = commit --amend -C HEAD
   hist = log --all --decorate --graph --oneline
   ix = diff --cached
+  mine = log --author=mjd
+  myfiles = what-changed --author=mjd --all
   patch = apply
   pullr = pull --rebase
   rprune = remote prune
@@ -22,7 +28,8 @@
   st = status
   statuis = status
   type = cat-file -t
-  what-changed = diff --name-only
+  wc = what-changed
+  wip = commit -a -m WIP
 [pager]
   show-branch = yes
 [rebase]
