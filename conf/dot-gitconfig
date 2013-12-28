@@ -27,6 +27,9 @@
   show-branch = yes
 [rebase]
   autosquash = true
+[svn]
+  addAuthorFrom = true
+  useLogAuthor = true
 [user]
   name = Mark Jason Dominus (陶敏修)
   email = mjd@plover.com
