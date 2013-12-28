@@ -5,6 +5,7 @@
 [core]
   excludesfile = /home/mjd/.gitignore
   editor = emacs -nw
+  pager = less -+$LESS -FRX
 [alias]
   branches = for-each-ref --format='%(refname:short)'
   cached = diff --cached
