@@ -28,8 +28,10 @@ if ($commit) {
     die "Fucking shell, how does it work?\n"
         if grep / /, @changed;
 
-    chomp(@changed = qx{find @changed -type f });
-    exit 1 unless $? == 0;
+    if (@changed) {
+        chomp(@changed = qx{find @changed -type f });
+        exit 1 unless $? == 0;
+    }
 }
 
 my $sep = $opt{0} ? "\0" : "\n";
