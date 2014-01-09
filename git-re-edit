@@ -11,8 +11,9 @@ my $EDITOR = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
 my %opt = ( e => $EDITOR,
             c => 0,
             'q' => 0,
+	    d => 0,
           );
-getopts('e:cq', \%opt) or usage();
+getopts('e:cqd', \%opt) or usage();
 
 run(shift);
 
@@ -35,7 +36,7 @@ sub run {
             or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
     }
 
-    unless (@files) {
+    if (@files == 0 && ! $opt{d}) {
         return run('HEAD') if ! defined $commit;
 
         warn "No files to edit\n";
@@ -43,8 +44,8 @@ sub run {
     }
 
     if ($opt{c}) {
-        exec @dirtyfiles_cmd
-            or die "Couldn't run @dirtyfiles_cmd: $!";
+	print join("\n", @files, "");
+	exit 0;
     }
 
     # maybe should use output of "git var GIT_EDITOR" here?
@@ -55,13 +56,17 @@ sub run {
 }
 
 sub usage {
-    print STDERR "git re-edit [-cq] [-e editor] [commit]
-    edit the files in the working tree that are different since the last commit
+    print STDERR "git re-edit [-cqd] [-e editor] [commit]
+    edit the dirty files in the working tree.
+
+    If there are no dirty files, edit the files that changed in the
+    last commit, unless -d was given.
 
     With -q, also edit files that are unknown to Git.
     With -c, print what would be edited but don't run the editor. (Deprecated, use git-dirtyfiles instead.)
 
     With a commit, edit the files that were changed in that commit.
+    -d is ignored in this mode.
 
     The default editor is $EDITOR; override with \$VISUAL, \$EDITOR, or with -e.
 ";
