@@ -13,39 +13,45 @@ my %opt = ( e => $EDITOR,
             'q' => 0,
           );
 getopts('e:cq', \%opt) or usage();
-my $commit = shift;
 
-my @command = (qw(git dirtyfiles),
-               ($opt{q} ? ('-q') : ()),
-               (defined($commit) ? ($commit) : ()),
-    );
+run(shift);
 
-if ($opt{c}) {
-    exec @command
-        or die "Couldn't run @command: $!";
+sub run {
+    my $commit = shift;
+
+    my @command = (qw(git dirtyfiles),
+                   ($opt{q} ? ('-q') : ()),
+                   (defined($commit) ? ($commit) : ()),
+        );
+
+    if ($opt{c}) {
+        exec @command
+            or die "Couldn't run @command: $!";
+    }
+
+    my @files;
+    {
+        local $ENV{GIT_DIRTYFILES_NULSEP} = 1;
+        open my ($f), "-|", @command
+            or die "Couldn't run @command: $!";
+        local $/ = "\0";
+        chomp(@files = <$f>);
+        close $f
+            or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
+    }
+
+    unless (@files) {
+        return run('HEAD') if ! defined $commit;
+        warn "No files to edit\n";
+        exit;
+    }
+
+    # maybe should use output of "git var GIT_EDITOR" here?
+    # But then I have to involve the !@&*!@*(&!@ shell
+    my $ed = $opt{e};
+    exec $ed, @files;
+    die "exec $ed: $!\n";
 }
-
-my @files;
-{
-    local $ENV{GIT_DIRTYFILES_NULSEP} = 1;
-    open my ($f), "-|", @command
-        or die "Couldn't run @command: $!";
-    local $/ = "\0";
-    chomp(@files = <$f>);
-    close $f
-        or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
-}
-
-unless (@files) {
-    warn "No files to edit\n";
-    exit;
-}
-    
-# maybe should use output of "git var GIT_EDITOR" here?
-# But then I have to involve the !@&*!@*(&!@ shell
-my $ed = $opt{e};
-exec $ed, @files;
-die "exec $ed: $!\n";
 
 sub usage {
     print STDERR "git re-edit [-cq] [-e editor] [commit]
