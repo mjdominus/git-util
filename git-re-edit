@@ -11,50 +11,83 @@ my $EDITOR = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
 my %opt = ( e => $EDITOR,
             c => 0,
             'q' => 0,
+	    d => 0,
           );
-getopts('e:cq', \%opt) or usage();
-my $commit = shift;
+getopts('e:cqd', \%opt) or usage();
+run(@ARGV);
 
-my @command = (qw(git dirtyfiles),
-               ($opt{q} ? ('-q') : ()),
-               (defined($commit) ? ($commit) : ()),
-    );
+sub which_files {
+  my ($commit) = @_;
 
-if ($opt{c}) {
-    exec @command
-        or die "Couldn't run @command: $!";
+    my @dirtyfiles_cmd = (qw(git dirtyfiles),
+			  ($opt{q} ? ('-q') : ()),
+			  (defined($commit) ? ($commit) : ()),
+			 );
+
+    my @files;
+    {
+        local $ENV{GIT_DIRTYFILES_NULSEP} = 1;
+        open my ($f), "-|", @dirtyfiles_cmd
+            or die "Couldn't run @dirtyfiles_cmd: $!";
+        local $/ = "\0";
+        chomp(@files = <$f>);
+        close $f
+            or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
+    }
+
+  return @files;
 }
 
-my @files;
-{
-    local $ENV{GIT_DIRTYFILES_NULSEP} = 1;
-    open my ($f), "-|", @command
-        or die "Couldn't run @command: $!";
-    local $/ = "\0";
-    chomp(@files = <$f>);
-    close $f
-        or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
+sub uniq {
+  my %seen;
+  my @f;
+  ! $seen{$_}++ && push @f, $_ for @_;
+  return @f;
 }
 
-unless (@files) {
-    warn "No files to edit\n";
-    exit;
+sub run {
+    my (@commits) = @_;
+
+    my @files;
+
+    if (@commits) {
+      @files = uniq(map which_files($_), @commits);
+    } else {
+      @files = which_files();
+      unless (@files || $opt{d}) {
+	@files = which_files("HEAD");
+      }
+    }
+
+    if ($opt{c}) {
+	print join("\n", @files, "");
+	exit 0;
+    }
+
+    if (@files == 0) {
+      warn "No files to edit\n";
+      exit;
+    }
+
+    # maybe should use output of "git var GIT_EDITOR" here?
+    # But then I have to involve the !@&*!@*(&!@ shell
+    my $ed = $opt{e};
+    exec $ed, @files;
+    die "exec $ed: $!\n";
 }
-    
-# maybe should use output of "git var GIT_EDITOR" here?
-# But then I have to involve the !@&*!@*(&!@ shell
-my $ed = $opt{e};
-exec $ed, @files;
-die "exec $ed: $!\n";
 
 sub usage {
-    print STDERR "git re-edit [-cq] [-e editor] [commit]
-    edit the files in the working tree that are different since the last commit
+    print STDERR "git re-edit [-cqd] [-e editor] [commits...]
+    edit the dirty files in the working tree.
+
+    If there are no dirty files, edit the files that changed in the
+    last commit, unless -d was given.
 
     With -q, also edit files that are unknown to Git.
     With -c, print what would be edited but don't run the editor. (Deprecated, use git-dirtyfiles instead.)
 
-    With a commit, edit the files that were changed in that commit.
+    With one or more commits, edit the files that were changed in those commits.
+    -d is ignored in this mode.
 
     The default editor is $EDITOR; override with \$VISUAL, \$EDITOR, or with -e.
 ";

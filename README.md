@@ -60,7 +60,8 @@ and doesn't fail completely in large repos. The name `lst` is supposed
 to remind you of `ls -t` and also of "LaST changes".
 
 `git-re-edit` runs `git-dirtyfiles` and invokes the editor on all the
-currently-dirty files:
+currently-dirty files, or if there are no dirty files, the files that
+changed in the last commit.
 
 1. Suppose you left your working directory dirty when you went home,
 and for some reason the editor has exited, and you want to open up the
