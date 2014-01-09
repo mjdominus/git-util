@@ -14,11 +14,10 @@ my %opt = ( e => $EDITOR,
 	    d => 0,
           );
 getopts('e:cqd', \%opt) or usage();
+run(@ARGV);
 
-run(shift);
-
-sub run {
-    my $commit = shift;
+sub which_files {
+  my ($commit) = @_;
 
     my @dirtyfiles_cmd = (qw(git dirtyfiles),
 			  ($opt{q} ? ('-q') : ()),
@@ -36,16 +35,38 @@ sub run {
             or die sprintf "git-dirtyfiles failed with exit status %d\n", $? >> 8;
     }
 
-    if (@files == 0 && ! $opt{d}) {
-        return run('HEAD') if ! defined $commit;
+  return @files;
+}
 
-        warn "No files to edit\n";
-        exit;
+sub uniq {
+  my %seen;
+  my @f;
+  ! $seen{$_}++ && push @f, $_ for @_;
+  return @f;
+}
+
+sub run {
+    my (@commits) = @_;
+
+    my @files;
+
+    if (@commits) {
+      @files = uniq(map which_files($_), @commits);
+    } else {
+      @files = which_files();
+      unless (@files || $opt{d}) {
+	@files = which_files("HEAD");
+      }
     }
 
     if ($opt{c}) {
 	print join("\n", @files, "");
 	exit 0;
+    }
+
+    if (@files == 0) {
+      warn "No files to edit\n";
+      exit;
     }
 
     # maybe should use output of "git var GIT_EDITOR" here?
@@ -56,7 +77,7 @@ sub run {
 }
 
 sub usage {
-    print STDERR "git re-edit [-cqd] [-e editor] [commit]
+    print STDERR "git re-edit [-cqd] [-e editor] [commits...]
     edit the dirty files in the working tree.
 
     If there are no dirty files, edit the files that changed in the
@@ -65,7 +86,7 @@ sub usage {
     With -q, also edit files that are unknown to Git.
     With -c, print what would be edited but don't run the editor. (Deprecated, use git-dirtyfiles instead.)
 
-    With a commit, edit the files that were changed in that commit.
+    With one or more commits, edit the files that were changed in those commits.
     -d is ignored in this mode.
 
     The default editor is $EDITOR; override with \$VISUAL, \$EDITOR, or with -e.
