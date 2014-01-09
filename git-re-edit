@@ -19,21 +19,16 @@ run(shift);
 sub run {
     my $commit = shift;
 
-    my @command = (qw(git dirtyfiles),
-                   ($opt{q} ? ('-q') : ()),
-                   (defined($commit) ? ($commit) : ()),
-        );
-
-    if ($opt{c}) {
-        exec @command
-            or die "Couldn't run @command: $!";
-    }
+    my @dirtyfiles_cmd = (qw(git dirtyfiles),
+			  ($opt{q} ? ('-q') : ()),
+			  (defined($commit) ? ($commit) : ()),
+			 );
 
     my @files;
     {
         local $ENV{GIT_DIRTYFILES_NULSEP} = 1;
-        open my ($f), "-|", @command
-            or die "Couldn't run @command: $!";
+        open my ($f), "-|", @dirtyfiles_cmd
+            or die "Couldn't run @dirtyfiles_cmd: $!";
         local $/ = "\0";
         chomp(@files = <$f>);
         close $f
@@ -42,8 +37,14 @@ sub run {
 
     unless (@files) {
         return run('HEAD') if ! defined $commit;
+
         warn "No files to edit\n";
         exit;
+    }
+
+    if ($opt{c}) {
+        exec @dirtyfiles_cmd
+            or die "Couldn't run @dirtyfiles_cmd: $!";
     }
 
     # maybe should use output of "git var GIT_EDITOR" here?
