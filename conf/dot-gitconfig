@@ -17,6 +17,7 @@
   ffm = ff-branch -v master
   figg = diff
   fixup = commit --amend -C HEAD
+  git = !git
   hist = log --all --decorate --graph --oneline
   ix = diff --cached
   mine = log --author=mjd
