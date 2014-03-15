@@ -34,6 +34,10 @@ remote/master` (if not).  Or you can just use `git ff-branch -r
 remote` to fast-forward all refs that track branches on `remote`.  The
 command will not modify any head except by fast-forwarding.
 
+`git-forcepush` is for pushing non-fastforward updates to branches in
+repositories that normally forbit that.  It does it by deleting the
+old branch first.
+
 `git-get` retrieves miscellaneous information about the repository.
 For example, how does a program retrieve the name of the
 currently-checked-out branch?  One common answer is the ridiculous

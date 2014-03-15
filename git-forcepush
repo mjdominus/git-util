@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+my $remote = shift or usage();
+usage() unless run_git("get", "is-remote", $remote);
+@ARGV or usage();
+
+
+for my $rs (@ARGV) {
+  my ($lb, $rb) = split /:/, $rs, 2;
+  $rb //= $lb;
+  run_git("push", $remote, ":$rb") && run_git("push", $remote, "$lb:$rb")
+    or warn "Couldn't force-push $rs!\n";
+}
+
+sub run_git {
+  my (@args) = @_;
+  system("git", @args) == 0;
+}
+
+sub usage {
+  print STDERR "Usage: git forcepush remote refspec...
+
+refspec is in the form localref:remoteref as usual;
+just 'ref' means the same as 'ref:ref'
+";
+  exit 2;
+}
