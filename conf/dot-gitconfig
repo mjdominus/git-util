@@ -13,7 +13,7 @@
   cp = cherry-pick
   detach = checkout --detach
   df = dirtyfiles
-  ff = merge --ff-only
+  ff = merge --ff-only --no-stat
   ffm = ff-branch -v master
   figg = diff
   fixup = commit --amend -C HEAD
