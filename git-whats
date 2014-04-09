@@ -5,9 +5,11 @@ $ENV{GIT_GET_NO_NEWLINE} = 1;
 use Getopt::Long;
 my $message;
 my ($clear, $prune, $verbose, $noaction);
+my $key_name = "what";
 GetOptions ("set=s"     => \$message,
-            "clear"     => \$clear,
+            "clear|unset" => \$clear,
             "prune"     => \$prune,
+            "key|k=s"   => \$key_name,
             "verbose|v" => \$verbose,
             "dry-run|n" => \$noaction,
            )
@@ -51,7 +53,7 @@ if (defined $message) {
 
 sub config_key {
   my ($ref) = @_;
-  return "branch.$ref.what";
+  return "branch.$ref.$key_name";
 }
 
 sub prune_whats {
@@ -59,15 +61,15 @@ sub prune_whats {
   my %head = map { $_ => 1 } @heads;
   for my $key (qx{git get config-keys}) {
     chomp $key;
-    my ($branch) = $key =~ /^branch\.([^.]+)\.what$/ or next;
+    my ($branch) = $key =~ /^branch\.([^.]+)\.\Q$key_name\E$/ or next;
     if (! $head{$branch}) {
-      warn "deleting $key\n";
-      system("git config --unset-all $key") unless $noaction;
+      warn "deleting '$key'\n";
+      system("git config --unset-all '$key'") unless $noaction;
     }
   }
 }
 
 sub usage {
-  die "Usage: git-whats [--set=...] [--clear] [branch]
+  die "Usage: git-whats [--key=...] [--set=...] [--clear] [branch]
        git-whats [-v] --prune\n";
 }
