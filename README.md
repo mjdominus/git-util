@@ -13,10 +13,10 @@ repository](https://github.com/mjdominus/util).
 command that actually runs `git-commit`.
 
 `git-dirtyfiles` lists the files in the repository that have been
-edited since the last commit, ingnoring unknown files by default, but
-including them if you pass `-q`.  With a commit argmuent, lists the
+edited since the last commit, ignoring unknown files by default, but
+including them if you pass `-q`.  With a commit argument, lists the
 files that were changed in that commit.  This exists mainly to be a
-backend for `git-re-edit`; see below.
+back-end for `git-re-edit`; see below.
 
 `git-fetchs` fetches all branches from all the remotes that you have
 previously fetched from.  This is primarily useful if you have a bunch
@@ -34,8 +34,8 @@ remote/master` (if not).  Or you can just use `git ff-branch -r
 remote` to fast-forward all refs that track branches on `remote`.  The
 command will not modify any head except by fast-forwarding.
 
-`git-forcepush` is for pushing non-fastforward updates to branches in
-repositories that normally forbit that.  It does it by deleting the
+`git-forcepush` is for pushing non-fast-forward updates to branches in
+repositories that normally forbid that.  It does it by deleting the
 old branch first.
 
 `git-get` retrieves miscellaneous information about the repository.
