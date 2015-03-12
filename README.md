@@ -63,6 +63,17 @@ doesn't. Unlike
 and doesn't fail completely in large repos. The name `lst` is supposed
 to remind you of `ls -t` and also of "LaST changes".
 
+`git-quickpush` is useful when you want to push commits to a branch
+that is frequenty updated by many other people: You fetch the branch,
+rebase your commits onto the branch, then push the branch---and the
+push fails because someone else pushed to the branch after you fetched
+and before you pushed.  `git-quickpush` does the three operations in
+quick succession, and if it fails it's easy to rerun.
+`git-quickmerge` is similar.  You specify a branch to merge to, and
+some additional options to the `git-merge` command, and it fetches the
+target branch, merges to it, and pushes it back, again in quick
+succession.
+                
 `git-re-edit` runs `git-dirtyfiles` and invokes the editor on all the
 currently-dirty files, or if there are no dirty files, the files that
 changed in the last commit.

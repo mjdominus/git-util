@@ -1,0 +1,20 @@
+#!/bin/bash
+
+branch="$1"
+shift 1
+cur_branch=$(git get current-branch-name)
+if [ -z "$branch" ]; then
+  echo "Usage: $0 branch-to-merge-to" 1>&2
+  exit 2;
+elif [ "$branch" = "$cur_branch" ]; then
+  echo "You can't merge this branch to itself!" 1>&2
+  exit 2;
+fi
+
+git fetch origin &&
+git checkout "$branch" &&
+git merge "$@" "$cur_branch" &&
+git push origin HEAD:"$branch"
+
+
+

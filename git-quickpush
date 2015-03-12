@@ -1,0 +1,7 @@
+#!/bin/bash
+
+git fetch origin &&
+git rebase origin/master &&
+git push origin HEAD:master
+
+
