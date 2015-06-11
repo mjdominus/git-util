@@ -1,33 +1,40 @@
 #!/usr/bin/perl
 
+use Getopt::Long;
+my $local;
+GetOptions('local|l' => \$local) or usage();
+
+$ENV{GIT_SSH_COMMAND} = "ssh -i ~/.ssh/id_daily_commits";
+my $workday_starts = 6;  # 6 PT = 9 ET
 use Time::Local;
 my $when = do {
   my @date = localtime;
-  @date = localtime(time() - 86400) if $date[2] < 9;
-  @date[2,1,0] = (9, 0, 0);
+  @date = localtime(time() - 86400) if $date[2] < $workday_starts;
+  @date[2,1,0] = ($workday_starts, 0, 0);
   timelocal(@date);
 };
 
 my $logs = "";
-my $GITDIR = shift() || "$ENV{HOME}/src";
-for my $repo (qw(pm moonpig pobox)) {
-  my $dir =  "$GITDIR/$repo";
-  chdir $dir or die "chdir $dir: $!";
-  system("git fetch origin");
-  my @commitids = 
-      map { $_->[1] }
-      grep { $_->[0] >= $when }
-      map { [ split ] } qx{git log --reverse --since=9AM --all --format="%at %H" --author=mjd gitbox/master origin/master};
-  
-  $logs .= qx{git log -w -n1 --stat $_} . "\n" for @commitids;
+my $GITDIR = shift() || $ENV{STARTERVIEW} || "/home/mjd/src/zr";
+chdir $GITDIR or die "chdir $GITDIR: $!";
+unless ($local) {
+  system("git fetch ssh://todays-commits/ZipRecruiter/ziprecruiter.git");
+  system("git fetch ssh://todays-commits/mjd/ziprecruiter.git");
 }
 
+my @commitids =
+  map { $_->[1] }
+  grep { $_->[0] >= $when }
+  map { [ split ] } qx{git log --reverse --format=fuller --since=${workday_starts}AM --all --format="%at %H" --author=mjd};
+$logs .= qx{git log -w -n1 --stat $_} . "\n" for @commitids;
+
+print "Report for " . localtime($when) . ":\n";
 if ($logs =~ /\S/) {
   print "Today's commits:\n\n$logs\n";
 } else {
   print "I didn't find any commits today.  I wonder why not?
-Holiday? Wrong repository? Forgot to push? Out sick? 
-Or maybe the program couldn't fetch the new commits. 
+Holiday? Wrong repository? Forgot to push? Out sick?
+Or maybe the program couldn't fetch the new commits.
 Better find out!
 ";
 }
