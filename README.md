@@ -2,10 +2,11 @@ Most of these programs have intelligible usage messages, or comments
 in the source code that explain the usage, or both.  My favorites are
 `git-vee` and `git-re-edit`.  Here is a brief summary of what they do.
 
-`git-addq` is a simple wrapper around `git-re-edit` and
+`git-addq` is a simple wrapper around `git-dirtyfiles` and
 [`menupick`](https://github.com/mjdominus/util/blob/master/bin/menupick)
-that prompts for each new or modified file in the repository whether
-to add it to the index.  `menupick` is available in my [util
+that gives a menu of dirty files and asks which ones you want added to
+the index.  Options are passed to `git-dirtyfiles`, so `-q` includes
+unknown files in the menu.  `menupick` is available in my [util
 repository](https://github.com/mjdominus/util).
 
 `git-command` is a shell alias. If you make a symbolic link, say
