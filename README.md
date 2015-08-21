@@ -60,7 +60,7 @@ you.
 most-recently to least-recently committed, with the last commit times.
 It is very much a work in progress; it should have many options, but
 doesn't. Unlike
-`[git-ls-date](https://pypi.python.org/pypi/git-ls-date)` it is fast
+[`git-ls-date`](https://pypi.python.org/pypi/git-ls-date) it is fast
 and doesn't fail completely in large repos. The name `lst` is supposed
 to remind you of `ls -t` and also of "LaST changes".
 
