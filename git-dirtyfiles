@@ -17,8 +17,16 @@ getopts('q0', \%opt) or usage();
 my $commit = shift;
 my @changed;
 
+sub cdup {
+    my $names = shift;
+    chomp(my ($cdup) = qx{git rev-parse --show-cdup 2> /dev/null});
+    exit 1 unless $? == 0;
+    s/^/$cdup/ for @$names;
+}
+
 if ($commit) {
     chomp(@changed = grep /\S/, qx{git show --pretty="format:" --name-only $commit});
+    cdup(\@changed);
 } else {
     chomp(@changed = qx{git status --porcelain});
     exit 1 unless $? == 0;
@@ -28,10 +36,10 @@ if ($commit) {
     die "Fucking shell, how does it work?\n"
         if grep / /, @changed;
 
-    if (@changed) {
-        chomp(@changed = qx{find @changed -type f });
-        exit 1 unless $? == 0;
-    }
+    cdup(\@changed);
+
+    chomp(@changed = qx{find @changed -type f }) if @changed;
+    exit 1 unless $? == 0;
 }
 
 my $sep = $opt{0} ? "\0" : "\n";
