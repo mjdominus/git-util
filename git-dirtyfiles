@@ -9,11 +9,12 @@
 use strict;
 use Getopt::Std;
 my %opt = ( q => 0,
+            u => 0,
             0 => $ENV{GIT_DIRTYFILES_NULSEP} ? 1 : 0,
     );
 
 
-getopts('q0', \%opt) or usage();
+getopts('qu0', \%opt) or usage();
 my $commit = shift;
 my @changed;
 
@@ -23,6 +24,7 @@ if ($commit) {
     chomp(@changed = qx{git status --porcelain});
     exit 1 unless $? == 0;
     @changed = grep !/^\?\? /, @changed unless $opt{q};
+    @changed = grep  /^[UD]U /, @changed if $opt{u};
     s/^.. // or die "<$_>???\n" for @changed;
     s/.* -> // for @changed;
     die "Fucking shell, how does it work?\n"
@@ -39,11 +41,13 @@ print join $sep, @changed, "";
 exit 0;
 
 sub usage {
-    print STDERR "git dirtyfiles [-q] [-0] [commit]
+    print STDERR "git dirtyfiles [-q] [-u] [-0] [commit]
     list the names of files that have been changed since the last commit,
     one per line (or separated by NUL if -0 is given)
 
     With -q, include files that are unknown to Git
+
+    With -u, include only files with merge conflicts
 
     With a commit, list the names of the files that were changed in that commit
 ";

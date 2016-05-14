@@ -11,9 +11,10 @@ my $EDITOR = $ENV{VISUAL} || $ENV{EDITOR} || "emacs";
 my %opt = ( e => $EDITOR,
             c => 0,
             'q' => 0,
-	    d => 0,
+            d => 0,
+            u => 0,
           );
-getopts('e:cqd', \%opt) or usage();
+getopts('e:cqud', \%opt) or usage();
 run(@ARGV);
 
 sub which_files {
@@ -21,6 +22,7 @@ sub which_files {
 
     my @dirtyfiles_cmd = (qw(git dirtyfiles),
 			  ($opt{q} ? ('-q') : ()),
+                          ($opt{u} ? ('-u') : ()),
 			  (defined($commit) ? ($commit) : ()),
 			 );
 
