@@ -136,6 +136,27 @@ sub pager_command {
   return $opt{n} ? $pager : join(" ", "LESS=FRSX", $pager);
 }
 
+sub author_email {
+  _run(qw(git log -1 --format=%ae), _temporary_commit());
+}
+
+sub author_username {
+  my $email = author_email();
+  $email =~ s/\@.*\z//sr;
+}
+
+sub author_name {
+  _run(qw(git log -1 --format=%an), _temporary_commit());
+}
+
+# This insanity creates a new, unattached commit and returns its commit ID.
+# It does not change the index or any of the refs.
+sub _temporary_commit {
+  my $commit_id = qx{git commit-tree HEAD^{tree} < /dev/null};
+  chomp($commit_id);
+  return $commit_id;
+}
+
 sub _run {
   my @cmd = @_;
   open my($p), "-|", @cmd or die "Couldn't run '@cmd': $!";

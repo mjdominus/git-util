@@ -23,7 +23,7 @@ while ($ARGV[0] =~ /^-/) {
   }
 }
 $user //= default_user();
-sub default_user { $ENV{GIT_PUSHO_USER} // $ENV{USER} // die "Can't guess user name" }
+sub default_user { $ENV{GIT_PUSHO_USER} // qx{git-get author-username} }
 
 if (@ARGV > 1) { usage() }
 elsif (@ARGV == 1) { $remote = shift }
