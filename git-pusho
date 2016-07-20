@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+#
+# git push origin HEAD:$user/$current_branch
+#
+
+my $user;
+$ENV{GIT_GET_NO_NEWLINE} = 1;
+my $dry_run;
+my $remote = "origin";
+
+my @opt;
+while ($ARGV[0] =~ /^-/) {
+  if ($ARGV[0] eq "-n" || $ARGV[0] eq "--dry-run") {
+    shift @ARGV;
+    $dry_run = 1;
+  } elsif ($ARGV[0] eq "-u" || $ARGV[0] eq "--user") {
+    shift @ARGV;
+    $user = shift @ARGV;
+  } elsif ($ARGV[0] eq "-?" || $ARGV[0] eq "-h" || $ARGV[0] eq "--help") {
+    usage();
+  } else {
+    push @opt, shift @ARGV;
+  }
+}
+$user //= default_user();
+sub default_user { $ENV{GIT_PUSHO_USER} // $ENV{USER} // die "Can't guess user name" }
+
+if (@ARGV > 1) { usage() }
+elsif (@ARGV == 1) { $remote = shift }
+
+if (system("git get is_head_detached") == 0) {
+  die "Can't proceed: HEAD is detached\n";
+}
+my $branch = qx{git get current-branch-name};
+my @command = ("git", "push", @opt, $remote,
+               sprintf("HEAD:$user/$branch"),
+              );
+if ($dry_run) { print STDERR "@command\n"; exit 0 }
+
+exec @command;
+die "Couldn't exec '@command': $!\n";
+
+
+sub usage {
+    printf STDERR "git-pusho [-nu] [remote] : push current head to remote repo
+\t-u --user     Override default username ('%s')
+\t-n --dry-run  Print the git-push command that will be run
+\t 'remote' defaults to 'origin'
+", default_user();
+    exit 2;
+}

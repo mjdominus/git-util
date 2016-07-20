@@ -74,6 +74,11 @@ quick succession, and if it fails it's easy to rerun.
 some additional options to the `git-merge` command, and it fetches the
 target branch, merges to it, and pushes it back, again in quick
 succession.
+
+`git-pusho` is for pushing local branches to a shared repository.  If
+your username is `fred` and you have branch `topic` checked out, then
+`git pusho` is equivalent to `git push origin topic:fred/topic`.
+Unrecognized options are passed along to `git-push`.
                 
 `git-re-edit` runs `git-dirtyfiles` and invokes the editor on all the
 currently-dirty files, or if there are no dirty files, the files that
