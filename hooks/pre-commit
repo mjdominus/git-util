@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# Apply file-type specific checks to modified files before committing
+#
+# See http://blog.plover.com/prog/git-pre-commit-hook.html
+#
+# Author: Mark Jason Dominus 2017-02-15
+#
+# This program is in the public domain
+
+function typeof () {
+    filename=$1
+    case $filename in
+        *.pl | *.pm) echo perl; exit ;;
+    esac
+
+    line1=$(head -1 $1)
+    case $line1 in '#!'*perl )
+        echo perl; exit ;;
+    esac
+}
+
+if [ ! -z $COMMIT_OK ]; then
+    exit 0;
+fi
+
+exec 1>&2
+
+# This idea doesn't work as is, needs further study:
+# trap "git stash pop" EXIT
+# git stash save -k "pre-commit stash" || exit 2
+
+allOK=true
+badFiles=
+for file in $(git diff --cached --name-only | sort) ; do
+    type=$(typeof "$file")
+    BAD=false
+    echo
+    echo "##  Checking file $file (type $type)"
+    case $type in
+        perl )
+            perl -cw $file || BAD=true
+            [ -x $file ] || echo "File is not executable"; BAD=true 
+            ;;
+        * )
+            echo "Unknown file type: $file; no checks"
+            ;;
+    esac
+    if $BAD; then
+        allOK=false;
+        badFiles="$badFiles;$file"
+    fi
+done
+
+if $allOK; then
+    exit 0;
+else
+    echo ''
+    echo '## Aborting commit.  Failed checks:'
+    for file in $(echo $badFiles | tr ';' ' '); do
+        echo "    $file"
+    done
+    exit 1;
+fi
