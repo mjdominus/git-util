@@ -1,0 +1,16 @@
+git-re-edit needs to be able to take a range of commits and edit all
+the files changed by any of those commits.  I'd like to implement that
+as part of a general git-what-changed command that just lists the
+files that changed in a commit or commits.  Picking the filenames out
+of git-diff --stat with its stupid abbreviating behavior is getting
+old.  Then I would also remove the -c flag from git-re-edit.
+
+git-what-changed will emit the names of files that no longer exist.
+For example, if you create file foo, then move it to bar,
+git-what-changed will emit both names.  The default should emit bar
+but not foo.
+
+2013-09-13: Combine git-what-changed with git-vee to emit all the
+files that have been touched since this branch diverged from branch X,
+either master or its tracked branch.
+

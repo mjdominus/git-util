@@ -1,0 +1,11 @@
+git-dirtyfiles should also get a flag to tell it to only edit the files
+that have a conflicted merge state.  That would be useful for fixing
+up conflicted merges.
+
+What should git-dirtyfiles do when files are deleted from the
+repository?  At present it has bad behavior: it tries to list them
+recursively, and the find command it uses fails because the root it's
+told to search doesn't exist.  But the real problem is that you don't
+know yet what the correct behavior should be.
+
+
