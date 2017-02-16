@@ -40,7 +40,7 @@ for file in $(git diff --cached --name-only | sort) ; do
     case $type in
         perl )
             perl -cw $file || BAD=true
-            [ -x $file ] || echo "File is not executable"; BAD=true 
+            [ -x $file ] || { echo "File is not executable"; BAD=true; }
             ;;
         * )
             echo "Unknown file type: $file; no checks"
