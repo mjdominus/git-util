@@ -54,7 +54,7 @@ with no argument prints a list of available information.
 
 `git-git` is the reverse of `git-command`.  If you accidentally type
 `git git commit`, then `git-git` will silently run `git commit` for
-you.
+you.  (This used to be a program but is now a line in `.gitconfig`.)
 
 `git-lst` lists the files in the specified directory, from
 most-recently to least-recently committed, with the last commit times.
