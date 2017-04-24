@@ -6,6 +6,7 @@
   excludesfile = /home/mjd/.gitignore
   editor = emacs -nw
   pager = less -+$LESS -FRX
+  whitespace = tab-in-indent
 [alias]
   branches = for-each-ref --format='%(refname:short)'
   cached = diff --cached
@@ -18,14 +19,19 @@
   figg = diff
   fixup = commit --amend -C HEAD
   git = !git
-  hist = log --all --decorate --graph --oneline
+  graph = log --decorate --graph --oneline
+  grpe = grep
+  hist = log --decorate --graph --oneline --all --cherry-mark
   ix = diff --cached
+  log1 = log --oneline --decorate
+  logf = log --format=fuller
   mine = log --author=mjd
   myfiles = what-changed --author=mjd --all
   patch = apply
   pullr = pull --rebase
   rprune = remote prune
   s = status -s
+  set-upstream = !git branch --set-upstream-to=origin/`git symbolic-ref --short HEAD`
   st = status
   statuis = status
   type = cat-file -t
@@ -41,3 +47,5 @@
 [user]
   name = Mark Jason Dominus (陶敏修)
   email = mjd@plover.com
+[gc]
+	auto = 10000
