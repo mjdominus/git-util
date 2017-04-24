@@ -36,7 +36,7 @@
   statuis = status
   type = cat-file -t
   wc = what-changed
-  wip = commit -a -m WIP
+  # wip = commit -a --no-verify -m "WIP $(hostname --short)"
 [pager]
   show-branch = yes
 [rebase]

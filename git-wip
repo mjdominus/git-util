@@ -1,0 +1,4 @@
+#!/bin/bash
+
+exec git commit -a --no-verify -m "WIP $(hostname --short)"
+
