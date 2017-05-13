@@ -52,6 +52,11 @@ usage () {
   exit 2
 }
 
+print_command_only=false
+case $1 in
+    -q) print_command_only=true; shift ;;
+esac
+
 case $# in
   0) Y=$(git get current-branch-name);
      [ -z "$Y" ] && die "Couldn't get current branch name"
@@ -81,5 +86,10 @@ if equal_commits $A $B ; then
   exit 0;
 fi
 
-git log --decorate --cherry-mark --oneline --graph --boundary $A"..."$B
+cmd="git log --decorate --cherry-mark --oneline --graph --boundary $A...$B"
+if $print_command_only; then
+    echo $cmd
+else
+    $cmd
+fi
 
