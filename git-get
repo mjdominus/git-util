@@ -24,6 +24,12 @@ sub repo_rootdir_relative {
   $rel eq "" ? "." : $rel;
 }
 
+sub cwd_relative_to_repo {
+  my $rel = _run("git rev-parse --show-prefix");
+  $rel =~ s{/$}{};
+  $rel eq "" ? "." : $rel;
+}
+
 sub pwd_relative {
   _run("git rev-parse --show-prefix");
 }
@@ -155,6 +161,14 @@ sub _temporary_commit {
   my $commit_id = qx{git commit-tree HEAD^{tree} < /dev/null};
   chomp($commit_id);
   return $commit_id;
+}
+
+sub in_any_repo {
+    exit (_in_any_repo() ? 0 : 1);
+}
+
+sub _in_any_repo {
+    system("git rev-parse HEAD >> /dev/null 2>&1") == 0;
 }
 
 sub _run {
