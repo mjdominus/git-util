@@ -1,3 +1,3 @@
 #!/bin/sh
 
-git add $(git dirtyfiles "$@" | menupick)
+git add $(git dirtyfiles "$@" | menupick -1)
