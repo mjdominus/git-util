@@ -3,6 +3,12 @@ use strict;
 
 my ($what, @args) = @ARGV;
 
+# For shell completion
+if ($what eq "--list") {
+    print join "\n", _command_names(), "";
+    exit 0;
+}
+
 _usage() unless defined $what;
 
 $what =~ tr/-/_/;
@@ -182,8 +188,12 @@ sub _run {
 sub _usage {
   my ($what) = @_;
   warn "Don't know how to get '$what'; try:\n" if defined $what;
-  my @names = sort grep !/^_/ && defined &{$_}, keys %main::;
-  tr/_/-/ for @names;
-  print STDERR join "\n", @names, "";
+  print STDERR join "\n", _command_names(), "";
   exit;
+}
+
+sub _command_names {
+    my @names = sort grep !/^_/ && defined &{$_}, keys %main::;
+    tr/_/-/ for @names;
+    return @names;
 }

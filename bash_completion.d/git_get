@@ -1,0 +1,4 @@
+_git_get ()
+{
+    __gitcomp_nl "$(git get --list)"
+}
