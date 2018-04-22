@@ -1,0 +1,18 @@
+This is useful, but:
+
+1. Its default behavior is awful; it lists the current branch back to
+   the beginning of the universe and it produces no output until it
+   has finished.  Instead of piping through `sort -u`, pipe it through
+   an online uniquer like
+
+     perl -nle 'print unless $seen{$_}++'
+
+2. At present it passes options to git-log.  This is good, but it
+   means that it can't be used with my nice `git mine` alias.  Maybe
+   if the first argument does not begin with a hyphen, shift it off
+   and use it in place of `log` so for example
+
+      git files mine -8          # git-mine -8 | ...
+      git files --author=mjd -8  # (the same)
+      git files -8               # git-log  -8 | ...
+

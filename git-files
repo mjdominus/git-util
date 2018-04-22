@@ -1,0 +1,5 @@
+#!/bin/bash
+#
+git log "$@" --stat --name-only --format=""|sort -u | perl -nle 'print if -e'
+
+

@@ -35,6 +35,11 @@ remote/master` (if not).  Or you can just use `git ff-branch -r
 remote` to fast-forward all refs that track branches on `remote`.  The
 command will not modify any head except by fast-forwarding.
 
+`git-files` passes its arguments to `git-log`, extracts only the names
+of the changed files from the output, and prints each one exactly once
+on standard output, omitting files that no longer exist in the current
+working tree.  (Work in progress; see `NOTES/git-files`.)
+
 `git-forcepush` is for pushing non-fast-forward updates to branches in
 repositories that normally forbid that.  It does it by deleting the
 old branch first.
