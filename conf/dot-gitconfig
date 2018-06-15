@@ -29,6 +29,10 @@
   myfiles = what-changed --author=mjd --all
   patch = apply
   pullr = pull --rebase
+  rl = rev-lit
+  rp = rev-parse
+  revlist = rev-list
+  revparse = rev-parse
   rprune = remote prune
   s = status -s
   set-upstream = !git branch --set-upstream-to=origin/`git symbolic-ref --short HEAD`
