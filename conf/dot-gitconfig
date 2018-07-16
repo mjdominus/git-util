@@ -17,7 +17,7 @@
   ff = merge --ff-only --no-stat
   ffm = ff-branch -v master
   figg = diff
-  fixup = commit --amend -C HEAD
+  fx = commit --amend --no-edit
   git = !git
   graph = log --decorate --graph --oneline
   grpe = grep
