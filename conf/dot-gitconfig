@@ -29,7 +29,7 @@
   myfiles = what-changed --author=mjd --all
   patch = apply
   pullr = pull --rebase
-  rl = rev-lit
+  rl = rev-list
   rp = rev-parse
   revlist = rev-list
   revparse = rev-parse
