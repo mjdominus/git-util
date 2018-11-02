@@ -69,6 +69,19 @@ doesn't. Unlike
 and doesn't fail completely in large repos. The name `lst` is supposed
 to remind you of `ls -t` and also of "LaST changes".
 
+`git-pusho` is for pushing local branches to a shared repository.  If
+your username is `fred` and you have branch `topic` checked out, then
+`git pusho` is equivalent to `git push origin topic:fred/topic`.
+Unrecognized options are passed along to `git-push`.
+
+`git-q` is for quick queries.  You give it a bunch of commit-ishes and
+it prints out their short hashes and commit dates, one per line, so
+that you can see which one was first.  But if the first argument
+begins with a `%`, it is interpreted as a request for something other
+than the commit date, so that `git q %ae` gets the author email
+addresses instead, and `git q %s` gets the subjects and so forth.  The
+full list of requestable information is documented in `git-log`.
+
 `git-quickpush` is useful when you want to push commits to a branch
 that is frequenty updated by many other people: You fetch the branch,
 rebase your commits onto the branch, then push the branch---and the
@@ -80,11 +93,6 @@ some additional options to the `git-merge` command, and it fetches the
 target branch, merges to it, and pushes it back, again in quick
 succession.
 
-`git-pusho` is for pushing local branches to a shared repository.  If
-your username is `fred` and you have branch `topic` checked out, then
-`git pusho` is equivalent to `git push origin topic:fred/topic`.
-Unrecognized options are passed along to `git-push`.
-                
 `git-re-edit` runs `git-dirtyfiles` and invokes the editor on all the
 currently-dirty files, or if there are no dirty files, the files that
 changed in the last commit.

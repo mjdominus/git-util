@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+from sys import argv, stderr
+import subprocess
+
+if len(argv) < 3: usage()
+
+if argv[1].startswith('%'):
+  item = argv[1]
+  ids = argv[2:]
+else:
+  item='%cd'
+  ids = argv[1:]
+
+for id in ids:
+  subprocess.run([ "git", "--no-pager", 
+                   "log", "-1", "--format=%h " + item, id])

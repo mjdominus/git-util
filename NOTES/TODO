@@ -36,3 +36,7 @@ expands the %-escapes like git-log does and returns the resulting
 string.  Then git-lst could have a --format string just like git-log's,
 and it would emit the data in the same way.
 
+2018-11-02 git-q could take multiple %-escapes so that `git q %an %ae`
+would emit author names and email addresses on the same line. 
+
+
