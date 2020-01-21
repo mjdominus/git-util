@@ -36,8 +36,9 @@ sub cwd_relative_to_repo {
   $rel eq "" ? "." : $rel;
 }
 
+# Oops, duplicated this by mistake
 sub pwd_relative {
-  _run("git rev-parse --show-prefix");
+    goto &cwd_relative_to_repo;
 }
 
 sub current_branch_name {
