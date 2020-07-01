@@ -79,7 +79,7 @@ sub run {
 }
 
 sub usage {
-    print STDERR "git re-edit [-cqd] [-e editor] [commits...]
+    print STDERR "git re-edit [-cqdu] [-e editor] [commits...]
     edit the dirty files in the working tree.
 
     If there are no dirty files, edit the files that changed in the
@@ -87,6 +87,7 @@ sub usage {
 
     With -q, also edit files that are unknown to Git.
     With -c, print what would be edited but don't run the editor. (Deprecated, use git-dirtyfiles instead.)
+    With -u, edit only the files that are in an unmerged state
 
     With one or more commits, edit the files that were changed in those commits.
     -d is ignored in this mode.
