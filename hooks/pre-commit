@@ -9,18 +9,18 @@
 # This program is in the public domain
 
 function typeof () {
-    filename=$1
-    case $filename in
+    filename="$1"
+    case "$filename" in
         *.pl | *.pm) echo perl; exit ;;
     esac
 
     line1=$(head -1 $1)
-    case $line1 in '#!'*perl )
+    case "$line1" in '#!'*perl )
         echo perl; exit ;;
     esac
 }
 
-if [ ! -z $COMMIT_OK ]; then
+if [ ! -z "$COMMIT_OK" ]; then
     exit 0;
 fi
 
@@ -39,8 +39,8 @@ for file in $(git diff --cached --name-only | sort) ; do
     echo "##  Checking file $file (type $type)"
     case $type in
         perl )
-            perl -cw $file || BAD=true
-            [ -x $file ] || { echo "File is not executable"; BAD=true; }
+            perl -cw -- "$file" || BAD=true
+            [ -x "$file" ] || { echo "File is not executable"; BAD=true; }
             ;;
         * )
             echo "Unknown file type: $file; no checks"
@@ -57,7 +57,7 @@ if $allOK; then
 else
     echo ''
     echo '## Aborting commit.  Failed checks:'
-    for file in $(echo $badFiles | tr ';' ' '); do
+    for file in $(echo "$badFiles" | tr ';' ' '); do
         echo "    $file"
     done
     exit 1;
