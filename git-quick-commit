@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+
+def run(*argv):
+    subprocess.run(argv, check=True)
+
+def prompt(p):
+    while True:
+        print(p, end=" ", file=sys.stderr, flush=True)
+        reply = sys.stdin.readline().lower()
+        if reply.startswith('y'): return True
+        elif reply.startswith('n'): return False
+        else: print("Reply should start with y or n")
+
+if __name__ == '__main__':
+    run("git", "add", "-u")
+    run("git", "diff", "--cached")
+    if not prompt("** Commit this?"):
+        exit(0)
+    run("git", "commit", *(sys.argv[1:]))

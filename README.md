@@ -82,6 +82,12 @@ than the commit date, so that `git q %ae` gets the author email
 addresses instead, and `git q %s` gets the subjects and so forth.  The
 full list of requestable information is documented in `git-log`.
 
+`git-quick-commit` is just a `git-add -u` followed by `git-commit`,
+but in between it uses `git-diff --cached` to show you the staged
+changes that will be committed, and asks you to confirm whether it
+should continue.  All command-line arguments are passed to
+`git-commit`.
+
 `git-quickpush` is useful when you want to push commits to a branch
 that is frequenty updated by many other people: You fetch the branch,
 rebase your commits onto the branch, then push the branch---and the
