@@ -29,6 +29,7 @@
   myfiles = what-changed --author=mjd --all
   patch = apply
   pullr = pull --rebase
+  qc = quick-commit
   rl = rev-list
   rp = rev-parse
   revlist = rev-list
