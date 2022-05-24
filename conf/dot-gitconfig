@@ -3,7 +3,7 @@
   status = auto
   branch = auto
 [core]
-  excludesfile = /home/mjd/.gitignore
+  excludesfile = ~/.gitignore
   editor = emacs -nw
   pager = less -+$LESS -FRX
   whitespace = tab-in-indent
