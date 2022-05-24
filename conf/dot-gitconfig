@@ -38,6 +38,7 @@
   s = status -s
   set-upstream = !git branch --set-upstream-to=origin/`git symbolic-ref --short HEAD`
   st = status
+  stat = show --stat
   statuis = status
   type = cat-file -t
   wc = what-changed
