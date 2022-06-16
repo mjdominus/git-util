@@ -45,6 +45,8 @@
   # wip = commit -a --no-verify -m "WIP $(hostname --short)"
 [pager]
   show-branch = yes
+[pull]
+  rebase = true
 [rebase]
   autosquash = true
 [svn]
