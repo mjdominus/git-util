@@ -60,15 +60,20 @@ esac
 case $# in
   0) Y=$(git get current-branch-name);
      [ -z "$Y" ] && die "Couldn't get current branch name"
-     X=$(git get branch-remote $Y);
-     [ -z "$X" ] && die "Couldn't find remote tracking branch for '$Y'"
+     B=$(git get branch-tracked-branch $Y);
+     if [ -z "$B" ] ; then
+         X=$(git get branch-tracked-branch $Y);
+         [ -z "$X" ] && die "Couldn't find remote tracking branch for '$Y'"
+     fi
      ;;
   1) X=$1 Y=HEAD;;
   2) X=$1 Y=$2;;
   *) usage ;;
 esac
 
-if is_remote $X; then
+if [ -n "$B" ]; then
+    A=$Y
+elif is_remote $X; then
   if [ $Y = HEAD ]; then
       Y=$(git get current-branch-name)
   fi
