@@ -18,6 +18,7 @@
   ffm = ff-branch -v master
   figg = diff
   fx = commit --amend --no-edit
+  fxu = !git add -vu && git fx
   git = !git
   graph = log --decorate --graph --oneline
   grpe = grep
