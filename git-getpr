@@ -17,7 +17,6 @@ def parser():
 
 def git(*args, check=True):
     args = ["git"] + list(args)
-    print("*", args, file=sys.stderr)
     res = subprocess.run(args, check=check, stdout=subprocess.PIPE, text=True)
     return res.stdout.rstrip()
 
@@ -30,8 +29,9 @@ if __name__ == '__main__':
     git("fetch", args.remote, f"{remote_ref}:{local_ref}", args.base_branch)
     # do we need --set-upstream-to?
     merge_base = git("merge-base", local_ref, f"{args.remote}/{args.base_branch}")
-    diff = git("diff", local_ref, merge_base)
-    with open("DIFF-{pr}", "w") as fh:
+    git("branch", "--force", f"pr/{pr}-base", merge_base)
+    diff = git("diff", "-b", "--diff-filter=d", merge_base, local_ref)
+    with open(f"DIFF-{pr}", "w") as fh:
         print(diff, file=fh)
     log = git("log", "--oneline", f"{merge_base}..{local_ref}")
     print(log, file=sys.stderr)
