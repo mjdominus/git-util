@@ -15,11 +15,14 @@ def parser():
     p.add_argument('--base-branch', '-M', default="main", help="Name of branch against which the pr is based")
     return p
 
-def git(*args, check=True):
+def git(*args, check=True, dest=None):
     args = ["git"] + list(args)
     res = subprocess.run(args, check=check, stdout=subprocess.PIPE, text=True)
-    return res.stdout.rstrip()
-
+    text = res.stdout.rstrip()
+    if dest is not None:
+        with open(dest, "w") as fh:
+            print(text, file=fh)
+    return text
 
 if __name__ == '__main__':
     args = parser().parse_args()
@@ -30,8 +33,7 @@ if __name__ == '__main__':
     # do we need --set-upstream-to?
     merge_base = git("merge-base", local_ref, f"{args.remote}/{args.base_branch}")
     git("branch", "--force", f"pr/{pr}-base", merge_base)
-    diff = git("diff", "-b", "--diff-filter=d", merge_base, local_ref)
-    with open(f"DIFF-{pr}", "w") as fh:
-        print(diff, file=fh)
+    git("diff", "-b", "--diff-filter=d", merge_base, local_ref, dest=f"DIFF-{pr}")
+    git("diff", "-b", "--name-only", "--diff-filter=d", merge_base, local_ref, dest=f"FILES-{pr}")
     log = git("log", "--oneline", f"{merge_base}..{local_ref}")
     print(log, file=sys.stderr)
