@@ -12,6 +12,7 @@ def parser():
     p.add_argument("pr_number", metavar=
     "PR-number", help="Number of the PR you want to fetch", type=int)
     p.add_argument("--remote", default="origin", help="name of the remote")
+    p.add_argument("--delete", "-D", action="store_true", help="delete the PR branches")
     p.add_argument('--base-branch', '-M', default="main", help="Name of branch against which the pr is based")
     return p
 
@@ -29,10 +30,16 @@ if __name__ == '__main__':
     pr = args.pr_number
     remote_ref = f"pull/{pr}/head"
     local_ref = f"pr/{pr}"
+    base_ref = f"pr/{pr}-base"
+
+    if args.delete:
+        git("branch", "-D", local_ref, base_ref)
+        exit(0)
+
     git("fetch", args.remote, f"{remote_ref}:{local_ref}", args.base_branch)
     # do we need --set-upstream-to?
     merge_base = git("merge-base", local_ref, f"{args.remote}/{args.base_branch}")
-    git("branch", "--force", f"pr/{pr}-base", merge_base)
+    git("branch", "--force", base_ref, merge_base)
     git("diff", "-b", "--diff-filter=d", merge_base, local_ref, dest=f"DIFF-{pr}")
     git("diff", "-b", "--name-only", "--diff-filter=d", merge_base, local_ref, dest=f"FILES-{pr}")
     log = git("log", "--oneline", f"{merge_base}..{local_ref}")
