@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import re
+import sys
+import subprocess
+
+def warn(f, msg):
+    print(f"file {f}", msg, file=sys.stderr)
+    
+def staged_files():
+    result = subprocess.run(["git", "diff", "--cached", "--name-only",
+    "--diff-filter=d"],
+                            stdout=subprocess.PIPE,
+                            encoding='utf8')
+    files = result.stdout.split("\n")
+    while len(files) > 0 and files[-1] == "":
+        files.pop()
+    return [ Path(f) for f in files ]
+
+def search_file(file, pat):
+    with file.open() as fh:
+        for line in fh:
+            if re.search(pat, line):
+                return line
+    return None
+
+def trim_whitespace(file):
+    modified = False
+    orig = file.read_text().split("\n")
+    result = [ l.rstrip()  for l in orig ]
+    if orig != result:
+        file.write_text("\n".join(result + [""]))
+        return True
+    else:
+        return False
+    
+if __name__ == '__main__':
+    all_ok = True
+    for f in staged_files():
+        if bad_line := search_file(f, r'XXX'):
+            warn(f, "contains 'XXX'");
+            all_ok = False
+        if bad_line := search_file(f, r'$DB::single'):
+            warn(f, "contains '$DB::single'");
+            all_ok = False
+        if trim_whitespace(f):
+            warn(f, "needed trimming");
+            all_ok = False
+    exit(0 if all_ok else 1)
+            
+        
