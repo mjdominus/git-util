@@ -11,7 +11,10 @@
 # from these remotes every time I update.
 
 use Getopt::Std;
-getopts('v', \my %opt) or die;
+getopts('vp', \my %opt) or die;
+
+my @more_opts;
+push @more_opts, "-p" if $opt{p};
 
 my @remotes = do {
   my %r;
@@ -24,6 +27,6 @@ my @remotes = do {
 
 for my $r (@remotes) {
   print "$r\n" if $opt{v};
-  system('git', 'fetch', $r);
+  system('git', 'fetch', @more_opts, $r);
 }
 
