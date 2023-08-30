@@ -4,6 +4,8 @@
 #   multiple patterns
 #      (didn't do this today because
 #       it wasn't obvious whether they would be AND or OR)
+#      (But I now think it should be AND so you can do
+#       `git re-edit $(git lfc files...)`)
 #   regex patterns
 #
 # Currently only searches the mainline, not any merged branches.
@@ -19,7 +21,8 @@ from argparse import ArgumentParser
 def arg_parser():
     p = ArgumentParser(description="find the most recent commit that changed a certain file")
     p.add_argument("file")
-    p.add_argument("--exact", "-x", action='store_true')
+    p.add_argument("--exact", "-x", action='store_true',
+                   help="FILE argument must match exactly")
     return p
 
 def git_get_files_modified(commitish):
@@ -51,7 +54,7 @@ if __name__ == '__main__':
         if sha is None:
             exit(1)
         files = git_get_files_modified(sha)
-        if filenames_match(files, args.file, substring=args.substring):
+        if filenames_match(files, args.file, exact=args.exact):
             print(sha)
             break
         i += 1
