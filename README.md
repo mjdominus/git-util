@@ -63,6 +63,12 @@ prints a summary of its commits to standard error.
 `git git commit`, then `git-git` will silently run `git commit` for
 you. (This used to be a program but is now a line in `.gitconfig`.)
 
+`git-last-file-change` searches the current branch to find the most
+recent commit that modified a file whose name contains the specified
+substring, and prints the SHA of that commit.  Typical uses: `git
+commit --fixup $(git lfc somefile)` or `git re-edit $(git
+lfc somefile)`
+
 `git-lst` lists the files in the specified directory, from
 most-recently to least-recently committed, with the last commit times.
 It is very much a work in progress; it should have many options, but

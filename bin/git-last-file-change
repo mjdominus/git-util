@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+#
+# Maybe do in the future:
+#   multiple patterns
+#      (didn't do this today because
+#       it wasn't obvious whether they would be AND or OR)
+#   regex patterns
+#
+# Currently only searches the mainline, not any merged branches.
+# Maybe do something about that someday.
+#
+# Or maybe an option to tell it to stop searching the first time it
+# reaches a merge commit
+
+import sys
+import subprocess
+from argparse import ArgumentParser
+
+def arg_parser():
+    p = ArgumentParser(description="find the most recent commit that changed a certain file")
+    p.add_argument("file")
+    p.add_argument("--exact", "-x", action='store_true')
+    return p
+
+def git_get_files_modified(commitish):
+    res = subprocess.run(["git", "show", commitish, "--format=", "--name-only"],
+                         stdout=subprocess.PIPE, check=True, encoding="utf8")
+    output = res.stdout.split('\n')
+    return output[:-1]
+
+def git_sha(commitish):
+    res = subprocess.run(["git", "rev-parse", commitish],
+                         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                         check=False, encoding="utf8")
+    if res.returncode == 0:
+        return res.stdout.rstrip()
+    else:
+        return None
+    
+def filenames_match(files, pat, exact=False):
+    if exact:
+        return any([pat == f for f in files])
+    else:
+        return any([pat in f for f in files])
+
+if __name__ == '__main__':
+    args = arg_parser().parse_args(sys.argv[1:])
+    i = 0
+    while True:
+        sha = git_sha(f"HEAD~{i}")
+        if sha is None:
+            exit(1)
+        files = git_get_files_modified(sha)
+        if filenames_match(files, args.file, substring=args.substring):
+            print(sha)
+            break
+        i += 1
+    exit(0)
+    

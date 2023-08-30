@@ -24,6 +24,7 @@
   grpe = grep
   hist = log --decorate --graph --oneline --all --cherry-mark
   ix = diff --cached
+  lfc = last-file-change
   log1 = log --oneline --decorate
   logf = log --format=fuller
   mine = log --author=mjd
