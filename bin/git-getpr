@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+import argparse
+from argparse import ArgumentParser
+from pathlib import Path
+from subprocess import run, PIPE, DEVNULL, STDOUT
+import sys
+
+def default_worktree_dir():
+      return Path("/tmp/mjd")
+
+global verbose
+verbose = False
+
+def parser():
+    p = ArgumentParser(description="Fetch a merge request to a local Git branch for examination")
+    p.add_argument('number',
+                   help="Merge request number to fetch",
+                   type=int)
+    p.add_argument('--remote', help="Name of remote",
+                   default="origin")
+    p.add_argument('--delete', '-d', action='store_true', help='delete local branch')
+    p.add_argument('--vee', '-v', action='store_true',
+                   help='Run git-vee afterward')
+    p.add_argument('--verbose', '-V', action='store_true',
+                   help='Log git commands run')
+    p.add_argument('--worktree-dir', '-w', default=default_worktree_dir(),
+                   type=Path,
+                   help='Create a worktree')
+    p.add_argument('--no-worktree-dir', '-W', dest='worktree_dir', action='store_const', const=None,
+                   help='Do not create a worktree')
+    return p
+
+def git(*args, check=True, result="none"):
+    global verbose
+    stdout_opt=DEVNULL
+    if result == "status":
+          check = False
+    elif result == "none":
+          pass
+    elif result == "lines":
+          stdout_opt=PIPE
+    elif result == "out":
+          stdout_opt=None
+    else:
+        raise Exception("Unknown value for 'result' parameter: {result}")
+
+    try:
+        if verbose:
+            warn(f"running git: {args}")
+        res = run(["git"] + list(args), check=check, stdout=stdout_opt, encoding='utf8')
+    except Exception as exc:
+          if check:
+                exit(1)
+
+    if result == "none" or result == "out":
+          return None
+    elif result == "status":
+          return res.returncode
+    elif result == "text":
+          return res.stdout
+    elif result == "lines":
+          lines = res.stdout.split("\n")
+          return lines[:-1]
+    
+
+def remote_branch_name(n):
+    return f"merge-requests/{str(n)}/head"
+
+def local_branch_name(n):
+    return f"mr/{str(n)}"
+
+def warn(msg):
+    print(msg, file=sys.stderr)
+
+def branch_exists(branch):
+    return git("show-ref", "--quiet", branch, result="status") == 0
+
+def worktree(worktree_dir, local_branch):
+      return worktree_dir / local_branch
+
+def worktree_exists(worktree):
+      worktrees = [ 
+            ln[9:] for ln in git("worktree", "list", "--porcelain", result="lines")
+            if ln.startswith("worktree ") ]
+      return worktree in worktrees
+
+if __name__ == '__main__':
+    args = parser().parse_args(sys.argv[1:])
+    verbose = args.verbose
+    n = args.number
+    lbn = local_branch_name(n)
+
+    if args.delete:
+       if args.worktree_dir is not None:
+                wtree = worktree(args.worktree_dir, lbn)
+                git("worktree", "remove", "--force", str(wtree))
+       git("branch", "-D", lbn)
+       exit(0)
+
+    if branch_exists(lbn):
+        warn(f"branch {lbn} exists already, procceding")
+    else:
+        # git fetch origin  merge-requests/2/head:mr/2/head
+        branch_spec = ":".join([remote_branch_name(n), lbn])
+        git("fetch", args.remote, branch_spec)
+
+    if args.worktree_dir is not None:
+          wtree = worktree(args.worktree_dir, lbn)
+          if worktree_exists(str(wtree)):
+                print(f"Worktree {wtree} already exists",
+                      file=sys.stderr)
+          else:
+                git("worktree", "add", str(wtree), lbn)
+
+    if args.vee:
+        git("vee", lbn, result="out")
+    

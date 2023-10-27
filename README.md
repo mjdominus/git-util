@@ -55,9 +55,9 @@ determine some bit of git information, I drop it in here. `git get`
 with no argument prints a list of available information.
 
 `git-getpr` takes a pull request number and pulls the change branch
-from Github or Gitlab into the local repository. It saves the diff
-between the PR and its base branch into the root of the repo, and
-prints a summary of its commits to standard error.
+from Github or Gitlab into the local repository.  Then it creates a
+worktree for the branch. The `-d` option cleans up again.  The
+worktree is under `/tmp/mjd` by default; patches welcome.
 
 `git-git` is the reverse of `git-command`. If you accidentally type
 `git git commit`, then `git-git` will silently run `git commit` for
