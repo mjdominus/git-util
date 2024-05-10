@@ -45,6 +45,8 @@
   type = cat-file -t
   wc = what-changed
   # wip = commit -a --no-verify -m "WIP $(hostname --short)"
+[grep]
+  extendedRegexp = yes
 [pager]
   show-branch = yes
 [pull]
