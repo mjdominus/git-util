@@ -96,6 +96,9 @@ changes that will be committed, and asks you to confirm whether it
 should continue. All command-line arguments are passed to
 `git-commit`.
 
+`git-quickinit` is trivial.  It runs `git-init` and creates an initial
+commit with an empty `.gitignore` file.
+
 `git-quickpush` is useful when you want to push commits to a branch
 that is frequenty updated by many other people: You fetch the branch,
 rebase your commits onto the branch, then push the branch---and the
