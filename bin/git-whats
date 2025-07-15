@@ -4,7 +4,7 @@ $ENV{GIT_GET_NO_NEWLINE} = 1;
 
 use Getopt::Long;
 my $message;
-my ($clear, $prune, $verbose, $noaction);
+my ($clear, $prune, $verbose, $noaction, $no_newline);
 my $key_name = "what";
 GetOptions ("set=s"     => \$message,
             "clear|unset" => \$clear,
@@ -12,6 +12,7 @@ GetOptions ("set=s"     => \$message,
             "key|k=s"   => \$key_name,
             "verbose|v" => \$verbose,
             "dry-run|n" => \$noaction,
+            "no-newlines|N" => \$no_newline,
            )
   or usage();
 
@@ -48,7 +49,9 @@ if (defined $message) {
   }
 } else {
   # Deal with arbitrary commit-ish some other time
-  system(qw(git config), config_key($branch));
+    my $res = readpipe(join(" " => qw(git config), config_key($branch)));
+    chomp($res) if $no_newline;
+    print $res;
 }
 
 sub config_key {
