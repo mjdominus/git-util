@@ -4,48 +4,113 @@
 #
 
 my $user;
+my $default_format = "%u/%b";
+my $format = $ENV{GIT_PUSHO_FORMAT} // $default_format;
 $ENV{GIT_GET_NO_NEWLINE} = 1;
 my $dry_run;
-my $remote = "origin";
+my $extra_format = {};
+my $remote = 'origin';
 
 my @opt;
+
 while ($ARGV[0] =~ /^-/) {
   if ($ARGV[0] eq "-n" || $ARGV[0] eq "--dry-run") {
     shift @ARGV;
     $dry_run = 1;
-  } elsif ($ARGV[0] eq "-u" || $ARGV[0] eq "--user") {
+  } elsif ($ARGV[0] eq "-U" || $ARGV[0] eq "--user") {
     shift @ARGV;
     $user = shift @ARGV;
+  } elsif ($ARGV[0] eq "-F" || $ARGV[0] eq "--format") {
+    shift @ARGV;
+    $format = shift @ARGV;
   } elsif ($ARGV[0] eq "-?" || $ARGV[0] eq "-h" || $ARGV[0] eq "--help") {
     usage();
   } else {
     push @opt, shift @ARGV;
   }
 }
-$user //= default_user();
-sub default_user { $ENV{GIT_PUSHO_USER} // qx{git-get author-username} }
+
+while ($ARGV[0] =~ /^(\w+)=(.*)$/) {
+  $extra_format->{$1} = $2;
+  shift @ARGV;
+}
 
 if (@ARGV > 1) { usage() }
 elsif (@ARGV == 1) { $remote = shift }
 
-if (system("git get is_head_detached") == 0) {
-  die "Can't proceed: HEAD is detached\n";
+sub fmt_branch_name {
+  if (system("git get is_head_detached") == 0) {
+    return;
+  }
+  return qx{git get current-branch-name};
 }
-my $branch = qx{git get current-branch-name};
+
+sub fmt_date {
+  my ($da, $mo, $yr) = (localtime)[3,4,5];
+  return sprintf "%4d%02d%02d", $yr+1900, $mo+1, $da;
+}
+
+sub fmt_ticket {
+  return $ENV{GIT_PUSHO_TICKET} if defined $ENV{GIT_PUSHO_TICKET};
+  my $whats = qx{git whats --no-newline --key ticket};
+  return $whats if $whats ne "";
+  return;
+}
+
+sub fmt_user {
+  return $user // $ENV{GIT_PUSHO_USER} // qx{git-get author-username};
+}
+
+my %esc = (
+  'b' => \&fmt_branch_name,
+  'd' => \&fmt_date,
+  't' => \&fmt_ticket,
+  'u' => \&fmt_user,
+ );
+
+sub expand_escape {
+  my ($key) = @_;
+  if (exists $extra_format->{$key}) {
+    return $extra_format->{$key};
+  } elsif (! exists $esc{$key}) {
+    die "Unknown format escape code '%$key'; aborting\n";
+  }
+
+  my $res = $esc{$key}->($key);
+  if (! defined $res) {
+    die "Format value for escape code '%$key' not set; aborting\n";
+  }
+  return $res;
+}
+
+my $target_branch = $format;
+$target_branch =~ s#%(\w+)|%\{(\w+)\}#expand_escape($1 // $2)#ge;
+
 my @command = ("git", "push", @opt, $remote,
-               sprintf("HEAD:$user/$branch"),
+               sprintf("HEAD:$target_branch"),
               );
 if ($dry_run) { print STDERR "@command\n"; exit 0 }
 
 exec @command;
 die "Couldn't exec '@command': $!\n";
 
-
 sub usage {
-    printf STDERR "git-pusho [-nu] [remote] : push current head to remote repo
-\t-u --user     Override default username ('%s')
+    printf STDERR "git-pusho [-n] [-u USER] [-F format] [k=v...] [remote] : push current head to remote repo
+\t-U --user     Override default username ('%s')
 \t-n --dry-run  Print the git-push command that will be run
+\t-F --format   recipe for building remote branch name ('%s')
+
+\t k=v defines extra escapes that will be understood in the --format
+
+\tAny unrecognized -x options will be passed to git-push
+
 \t 'remote' defaults to 'origin'
-", default_user();
+\t 'format' can be overridden with GIT_PUSHO_FORMAT
+\t It understands these escapes:
+\t\t %%b - current branch name
+\t\t %%d - date in YYYYMMDD format
+\t\t %%t - ticket name from GIT_PUSHO_TICKET or 'git whats -k ticket'
+\t\t %%u - username from GIT_PUSHO_USER or whatever Git would have used
+", fmt_user(), $format;
     exit 2;
 }

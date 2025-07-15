@@ -79,7 +79,10 @@ to remind you of `ls -t` and also of "LaST changes".
 
 `git-pusho` is for pushing local branches to a shared repository. If
 your username is `fred` and you have branch `topic` checked out, then
-`git pusho` is equivalent to `git push origin topic:fred/topic`.
+`git pusho` is equivalent to `git push origin HEAD:fred/topic`, or
+something like that; it takes a `--format` option to tell it how to
+build the remote ref name.  I use `%u/%b-%t-%d` which turns into
+`mjd/topic-ticketnumber-yyyymmdd` because I'm crazy like that.
 Unrecognized options are passed along to `git-push`.
 
 `git-q` is for quick queries. You give it a bunch of commit-ishes and
