@@ -52,7 +52,7 @@ sub fmt_date {
 
 sub fmt_ticket {
   return $ENV{GIT_PUSHO_TICKET} if defined $ENV{GIT_PUSHO_TICKET};
-  my $whats = qx{git whats --no-newline --key ticket};
+  my $whats = qx{git whats --no-newlines get ticket};
   return $whats if $whats ne "";
   return;
 }
