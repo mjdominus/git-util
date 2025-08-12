@@ -158,8 +158,13 @@ have been changed in the selected commits. By default this lists the
 changed files in reverse chronological order. I have an alias, `git myfiles`, which means `git what-changed --author=mjd`, which lists the
 files I have recently touched.
 
-`git-whats` records a description for a branch, or prints a previously
-recorded description.
+`git-whats` associates metadata with git branches by storing key-value
+pairs in `.git/config`. Use `git whats set ticket=XYZ-1234` to
+associate a ticket number with the current branch, or `git whats set
+"Working on feature X"` to set a description. Retrieve values with
+`git whats get ticket` or just `git whats get` for the default
+description. The `prune` subcommand removes metadata for deleted
+branches.
 
 `trim` is not really a git command. It trims trailing whitespace from
 the files named in its arguments.

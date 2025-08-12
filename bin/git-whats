@@ -3,60 +3,145 @@
 $ENV{GIT_GET_NO_NEWLINE} = 1;
 
 use Getopt::Long;
-my $message;
-my ($clear, $prune, $verbose, $noaction, $no_newline);
-my $key_name = "what";
-GetOptions ("set=s"     => \$message,
-            "clear|unset" => \$clear,
-            "prune"     => \$prune,
-            "key|k=s"   => \$key_name,
-            "verbose|v" => \$verbose,
+my ($verbose, $noaction, $no_newline, $all);
+my $default_key = "description";
+
+GetOptions ("verbose|v" => \$verbose,
             "dry-run|n" => \$noaction,
             "no-newlines|N" => \$no_newline,
+            "all|a" => \$all,
            )
   or usage();
 
-{
-  if (!!$clear + !!$prune + !!defined($message) > 1) {
-    warn "no more than one of --clear, --set, and --prune is allowed\n";
-    usage();
-  }
-  if ($prune && @ARGV) {
-    warn "--prune doesn't take any argument\n";
-    usage();
-  }
+usage() unless @ARGV;
+my $command = shift @ARGV;
+
+if ($command eq "prune") {
+  usage() if @ARGV;
+  prune_whats();
+  exit;
 }
 
-if ($clear) {
-  $message = "";
-}
+# Get current branch for all operations
+my $branch = qx{git get current-branch-name};
+chomp $branch;
+die "Detached HEAD\n" unless $branch =~ /\S/;
 
-prune_whats(), exit if $prune;
-
-usage() if @ARGV && @ARGV != 1;
-my $branch = shift;
-$branch =  qx{git get current-branch-name}
-  if ! defined($branch) || $branch eq "HEAD";
-
-my $key = config_key($branch);
-
-if (defined $message) {
-  die "Detached HEAD\n" unless $branch =~ /\S/;
-  if ($message eq "") {
-    exit system(qw(git config --unset), $key);
-  } else {
-    exit system(qw(git config), $key, $message);
-  }
+if ($command eq "set") {
+  handle_set(@ARGV);
+} elsif ($command eq "get") {
+  handle_get(@ARGV);
+} elsif ($command eq "clear") {
+  handle_clear(@ARGV);
 } else {
-  # Deal with arbitrary commit-ish some other time
-    my $res = readpipe(join(" " => qw(git config), config_key($branch)));
-    chomp($res) if $no_newline;
-    print $res;
+  usage();
+}
+
+sub handle_set {
+  my @args = @_;
+  usage() unless @args;
+  
+  my @kvpairs;
+  my $description_value;
+  
+  for my $arg (@args) {
+    if ($arg =~ /^([^=]+)=(.*)$/) {
+      push @kvpairs, [$1, $2];
+    } elsif (!defined $description_value) {
+      $description_value = $arg;
+    } else {
+      usage(); # Multiple non-key=value arguments not allowed
+    }
+  }
+  
+  # If we have a description value, add it as a key=value pair
+  push @kvpairs, [$default_key, $description_value] if defined $description_value;
+  
+  usage() unless @kvpairs;
+  
+  for my $pair (@kvpairs) {
+    my ($key, $value) = @$pair;
+    my $config_key = config_key($branch, $key);
+    system(qw(git config), $config_key, $value) unless $noaction;
+    print "Set $key = $value\n" if $verbose;
+  }
+}
+
+sub handle_get {
+  my @args = @_;
+  
+  if ($all) {
+    usage() if @args; # --all doesn't take key arguments
+    get_all_keys();
+  } elsif (@args == 0) {
+    # Get default key
+    get_key($default_key);
+  } elsif (@args == 1) {
+    # Get specific key
+    get_key($args[0]);
+  } else {
+    usage();
+  }
+}
+
+sub handle_clear {
+  my @args = @_;
+  
+  if ($all) {
+    usage() if @args; # --all doesn't take key arguments
+    clear_all_keys();
+  } elsif (@args == 0) {
+    # Clear default key
+    clear_key($default_key);
+  } elsif (@args == 1) {
+    # Clear specific key
+    clear_key($args[0]);
+  } else {
+    usage();
+  }
+}
+
+sub get_key {
+  my ($key) = @_;
+  my $config_key = config_key($branch, $key);
+  my $res = readpipe(join(" " => qw(git config), $config_key));
+  chomp($res) if $no_newline;
+  print $res;
+}
+
+sub get_all_keys {
+  for my $config_key (qx{git get config-keys}) {
+    chomp $config_key;
+    if ($config_key =~ /^branch\.\Q$branch\E\.(.+)$/) {
+      my $key = $1;
+      my $value = readpipe(join(" " => qw(git config), $config_key));
+      chomp $value;
+      print "$key=$value\n";
+    }
+  }
+}
+
+sub clear_key {
+  my ($key) = @_;
+  my $config_key = config_key($branch, $key);
+  system(qw(git config --unset), $config_key) unless $noaction;
+  print "Cleared $key\n" if $verbose;
+}
+
+sub clear_all_keys {
+  for my $config_key (qx{git get config-keys}) {
+    chomp $config_key;
+    if ($config_key =~ /^branch\.\Q$branch\E\.(.+)$/) {
+      my $key = $1;
+      system(qw(git config --unset), $config_key) unless $noaction;
+      print "Cleared $key\n" if $verbose;
+    }
+  }
 }
 
 sub config_key {
-  my ($ref) = @_;
-  return "branch.$ref.$key_name";
+  my ($ref, $key) = @_;
+  return "branch.$ref.$key";
 }
 
 sub prune_whats {
@@ -64,7 +149,7 @@ sub prune_whats {
   my %head = map { $_ => 1 } @heads;
   for my $key (qx{git get config-keys}) {
     chomp $key;
-    my ($branch) = $key =~ /^branch\.([^.]+)\.\Q$key_name\E$/ or next;
+    my ($branch) = $key =~ /^branch\.([^.]+)\./ or next;
     if (! $head{$branch}) {
       warn "deleting '$key'\n";
       system("git config --unset-all '$key'") unless $noaction;
@@ -73,6 +158,18 @@ sub prune_whats {
 }
 
 sub usage {
-  die "Usage: git-whats [--key=...] [--set=...] [--clear] [branch]
-       git-whats [-v] --prune\n";
+  die "Usage: git whats set <key=value> [<key=value>...] | <description>
+       git whats get [<key>] [--all]
+       git whats clear [<key>] [--all]
+       git whats prune
+
+Examples:
+  git whats set ticket=XYZ-1234 status=in-progress
+  git whats set \"Working on feature X\"
+  git whats get ticket
+  git whats get
+  git whats get --all
+  git whats clear ticket
+  git whats clear --all
+";
 }
