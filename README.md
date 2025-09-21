@@ -167,9 +167,18 @@ the files named in its arguments.
 `conf/dot-gitconfig` and `conf/dot-gitignore` contain my personal
 `.gitconfig` and `.gitignore` files.
 
+`what-changed-twice` is not exactly a Git utility.  It consumes the
+output of `git log --stat` and produces a report of all the files that
+changed more than once.  For an explanation of why this might be
+useful, see [my blog article about it][1].
+
 `bash_completion.d` contains completion scripts, which, if sourced,
 will enable bash command-line completion for some of these commands.
 
 ---
 
-A discussion of how I use some of these tools is available at [My Git Habits](http://blog.plover.com/prog/git-habits.html).
+A discussion of how I use some of these tools is available at [My Git
+Habits][2].
+
+[1]: http://blog.plover.com/prog/git/what-changed-twice.html
+[2]: http://blog.plover.com/prog/git-habits.html
