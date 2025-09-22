@@ -50,14 +50,8 @@ while (my ($commit, $files) = each %changes) {
 }
 
 # Figure out suitable width for filename column of report
-my $longest_filename = "";
-for my $file (sort keys %file_changes) {
-    my $commit_list = $file_changes{$file};
-    next if @$commit_list < 2;
-    if (length($file) > length($longest_filename)) {
-        $longest_filename = $file;
-    }
-}
+my ($longest_filename) =
+    sort { length($b) <=> length($a) } keys %file_changes;
 my $width = length($longest_filename);
 
 # Print out report of files changed in at least two commits
