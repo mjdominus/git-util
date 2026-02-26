@@ -3,5 +3,5 @@ set -o errexit
 
 git init "$@"
 touch .gitignore
-git add .gitignore
+git add -f .gitignore
 git commit -m 'initial commit'
