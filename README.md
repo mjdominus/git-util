@@ -126,6 +126,9 @@ changed in the last commit.
 3. During an interactive rebase that results in a complicated merge, you would like to run the editor on the conflicted files to resolve the conflicts. `git re-edit` will do that.
 4. You or a coworker refactors some code. Later, you'd like to refactor the same code some more. Use `git re-edit` _commit_ to edit the files that were changed in that commit.
 
+`git-tag-dates` lists the tag objects, with the dates that those tags
+(not the underlying commits) were created.
+
 `git-todays-commits` is supposed to list the commits that I made today.
 
 `git-treehash` compares the object IDs of the _trees_ of two or more
